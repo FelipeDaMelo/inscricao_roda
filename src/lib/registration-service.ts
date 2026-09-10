@@ -46,14 +46,17 @@ export async function processRegistration({
     const studentRef = adminDb.collection("students").doc(studentId);
     const studentDoc = await transaction.get(studentRef);
 
-    if (!studentDoc.exists && studentId !== "19042011") {
+    const masterKey = process.env.ADMIN_MASTER_KEY;
+    const isMaster = masterKey && studentId === masterKey;
+
+    if (!studentDoc.exists && !isMaster) {
       throw new Error("Estudante não encontrado no banco de dados.");
     }
 
     const studentData = studentDoc.exists
       ? studentDoc.data()!
       : {
-          name: "Estudante Mestre",
+          name: "Coordenação / Acesso Mestre",
           grade: "Coordenação",
         };
 

@@ -1,12 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { verifyAdminRequest } from "@/lib/auth-guard";
 import fs from "fs";
 import path from "path";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const authCheck = await verifyAdminRequest(request);
+  if (!authCheck.authorized) {
+    return NextResponse.json({ success: false, error: authCheck.error }, { status: 401 });
+  }
+
   try {
     const adminDb = getAdminDb();
 

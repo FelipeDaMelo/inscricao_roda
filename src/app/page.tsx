@@ -306,45 +306,6 @@ export default function HomePage() {
 
     setLoading(true);
 
-    // Bypass instantâneo para a chave mestre 19042011
-    if (cleanMatricula === "19042011") {
-      setStudent({
-        id: "19042011",
-        name: "Coordenação / Acesso Mestre",
-        grade: "3ª Série EM",
-      });
-      setMyRegistrations([]);
-      setSelectedRooms([]);
-
-      handleDownloadExcel();
-      setShowMasterModal(true);
-
-      try {
-        const lecturesRes = await fetch("/api/lectures");
-        const lecturesData = await lecturesRes.json();
-        if (lecturesData.success) {
-          setLectures(lecturesData.data);
-        }
-        await fetchSettings();
-        setEventSettings((prev) => ({
-          ...prev,
-          day16Open: true,
-          day19Open: true,
-          isReleased: true,
-        }));
-      } catch (err) {
-        console.error("Erro ao carregar lista de palestras:", err);
-      }
-
-      setStep("select_day");
-      toast.success("Acesso Mestre liberado! Baixando lista de presença oficial em Excel...", {
-        duration: 5000,
-        icon: "👑",
-      });
-      setLoading(false);
-      return;
-    }
-
     try {
       const res = await fetch(`/api/student/${cleanMatricula}`);
       const data = await res.json();
@@ -357,6 +318,22 @@ export default function HomePage() {
       setStudent(data.data.student);
       const studentRegs: Registration[] = data.data.registrations || [];
       setMyRegistrations(studentRegs);
+
+      const isMasterStudent = Boolean((data.data.student as any)?.isMaster);
+      if (isMasterStudent) {
+        handleDownloadExcel();
+        setShowMasterModal(true);
+        setEventSettings((prev) => ({
+          ...prev,
+          day16Open: true,
+          day19Open: true,
+          isReleased: true,
+        }));
+        toast.success("Acesso Mestre liberado! Baixando lista de presença oficial em Excel...", {
+          duration: 5000,
+          icon: "👑",
+        });
+      }
 
       // Buscar palestras disponíveis
       const lecturesRes = await fetch("/api/lectures");
@@ -383,7 +360,7 @@ export default function HomePage() {
   const handleAccessDay = async (date: "2026-09-16" | "2026-09-19") => {
     if (!student) return;
 
-    const isMaster = student.id === "19042011";
+    const isMaster = Boolean((student as any)?.isMaster);
 
     if (date === "2026-09-16" && !eventSettings.day16Open && !isMaster) {
       toast.error("As inscrições para a Roda de Conversas (16/09) não estão abertas no momento.");
@@ -946,36 +923,16 @@ export default function HomePage() {
                   </button>
                 </div>
 
-                {matricula.trim() === "19042011" && (
-                  <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-3.5 flex items-start gap-2.5 text-xs text-emerald-950 font-semibold animate-scale-in">
-                    <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-bold text-emerald-900">👑 Senha Mestre Reconhecida!</p>
-                      <p className="text-emerald-800 text-[11px] mt-0.5 leading-snug">
-                        Ao entrar, a <b>Lista de Presença Oficial em Excel (.xlsx)</b> será baixada automaticamente com as 17 abas separadas por sala e horário.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 <button
                   id="btn-acessar"
                   onClick={handleLookupStudent}
                   disabled={loading}
-                  className={`w-full py-3.5 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 ${matricula.trim() === "19042011"
-                    ? "bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl ring-4 ring-emerald-500/25"
-                    : "bg-marista-dark text-white hover:bg-marista-cyan hover:shadow-lg"
-                    }`}
+                  className="w-full py-3.5 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 bg-marista-dark text-white hover:bg-marista-cyan hover:shadow-lg"
                 >
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
                       Verificando...
-                    </>
-                  ) : matricula.trim() === "19042011" ? (
-                    <>
-                      <FileSpreadsheet className="w-5 h-5 text-emerald-300" />
-                      Acessar & Exportar Excel (.xlsx)
                     </>
                   ) : (
                     <>
@@ -1879,7 +1836,7 @@ export default function HomePage() {
           </header>
 
           {/* Faixa de Gestão Mestre / Exportação Excel */}
-          {student.id === "19042011" && (
+          {Boolean((student as any)?.isMaster) && (
             <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-neutral-900 px-4 py-2.5 shadow-md border-b border-amber-600/30">
               <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm font-medium">
                 <div className="flex items-center gap-2 font-black">

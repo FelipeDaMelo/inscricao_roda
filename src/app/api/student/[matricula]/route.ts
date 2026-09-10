@@ -16,15 +16,17 @@ export async function GET(
     );
   }
 
-  // Bypass 100% livre de banco de dados para a chave mestre 19042011
-  if (matricula === "19042011") {
+  // Bypass livre de banco de dados para a chave mestre configurada em variável de ambiente
+  const masterKey = process.env.ADMIN_MASTER_KEY;
+  if (masterKey && matricula === masterKey) {
     return NextResponse.json({
       success: true,
       data: {
         student: {
-          id: "19042011",
-          name: "Estudante Mestre (Acesso Liberado)",
+          id: masterKey,
+          name: "Coordenação / Acesso Mestre",
           grade: "3ª Série EM",
+          isMaster: true,
         },
         registrations: [],
       },

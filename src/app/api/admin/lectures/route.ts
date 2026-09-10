@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { verifyAdminRequest } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
 // Listar TODAS as palestras (incluindo inativas)
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authCheck = await verifyAdminRequest(request);
+  if (!authCheck.authorized) {
+    return NextResponse.json({ success: false, error: authCheck.error }, { status: 401 });
+  }
+
   try {
     const adminDb = getAdminDb();
     const snap = await adminDb.collection("lectures").orderBy("timeSlot", "asc").get();
@@ -23,6 +29,11 @@ export async function GET() {
 
 // Criar nova palestra
 export async function POST(request: NextRequest) {
+  const authCheck = await verifyAdminRequest(request);
+  if (!authCheck.authorized) {
+    return NextResponse.json({ success: false, error: authCheck.error }, { status: 401 });
+  }
+
   try {
     const adminDb = getAdminDb();
     const body = await request.json();
@@ -63,6 +74,11 @@ export async function POST(request: NextRequest) {
 
 // Editar palestra existente
 export async function PUT(request: NextRequest) {
+  const authCheck = await verifyAdminRequest(request);
+  if (!authCheck.authorized) {
+    return NextResponse.json({ success: false, error: authCheck.error }, { status: 401 });
+  }
+
   try {
     const adminDb = getAdminDb();
     const body = await request.json();
@@ -87,6 +103,11 @@ export async function PUT(request: NextRequest) {
 
 // Excluir palestra
 export async function DELETE(request: NextRequest) {
+  const authCheck = await verifyAdminRequest(request);
+  if (!authCheck.authorized) {
+    return NextResponse.json({ success: false, error: authCheck.error }, { status: 401 });
+  }
+
   try {
     const adminDb = getAdminDb();
     const { searchParams } = new URL(request.url);

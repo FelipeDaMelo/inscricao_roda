@@ -13,32 +13,49 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const isMaster = password === "19042011" || email.trim() === "19042011";
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Suporte à Senha Mestre 19042011 (aceita tanto no campo de senha quanto no campo de e-mail)
-    if (password === "19042011" || email.trim() === "19042011") {
-      toast.success("Acesso administrativo liberado via Senha Mestre! Baixando lista de presença...", {
-        duration: 5000,
-        icon: "👑",
-      });
-
-      // Dispara o download da lista de presença oficial em Excel
-      const link = document.createElement("a");
-      link.href = "/api/admin/export-excel";
-      link.setAttribute(
-        "download",
-        `Lista_de_Presenca_Roda_de_Conversas_${new Date().toISOString().slice(0, 10)}.xlsx`
-      );
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      router.push("/admin/registrations");
-      setLoading(false);
+    if (!email && !password) {
+      toast.error("Preencha e-mail e senha");
       return;
+    }
+
+    setLoading(true);
+
+    try {
+      // 1. Tentar validação de Chave Mestre de forma segura no servidor
+      const candidateKey = password.trim() || email.trim();
+      const verifyRes = await fetch("/api/admin/verify-master", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: candidateKey }),
+      });
+      const verifyData = await verifyRes.json();
+
+      if (verifyData.success) {
+        toast.success("Acesso administrativo liberado via Chave Mestre! Baixando lista de presença...", {
+          duration: 5000,
+          icon: "👑",
+        });
+
+        // Dispara o download da lista de presença oficial em Excel
+        const link = document.createElement("a");
+        link.href = "/api/admin/export-excel";
+        link.setAttribute(
+          "download",
+          `Lista_de_Presenca_Roda_de_Conversas_${new Date().toISOString().slice(0, 10)}.xlsx`
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        router.push("/admin/registrations");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // Se falhar a verificação mestre, segue para login padrão Firebase
     }
 
     if (!email || !password) {
@@ -121,33 +138,15 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          {isMaster && (
-            <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 flex items-center gap-2.5 text-xs text-emerald-900 font-semibold animate-scale-in">
-              <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>
-                Senha Mestre detectada! O acesso administrativo será liberado e a <b>Lista de Presença em Excel (.xlsx)</b> será baixada automaticamente.
-              </span>
-            </div>
-          )}
-
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-4 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 ${
-              isMaster
-                ? "bg-emerald-700 hover:bg-emerald-800 text-white ring-4 ring-emerald-500/20"
-                : "bg-marista-primary text-white hover:bg-marista-light"
-            }`}
+            className="w-full py-4 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 bg-marista-primary text-white hover:bg-marista-light"
           >
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
                 Autenticando...
-              </>
-            ) : isMaster ? (
-              <>
-                <FileSpreadsheet className="w-5 h-5 text-emerald-300" />
-                Acessar & Baixar Lista de Presença (.xlsx)
               </>
             ) : (
               "Acessar Painel"

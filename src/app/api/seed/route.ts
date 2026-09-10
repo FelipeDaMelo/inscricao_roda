@@ -1,14 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { verifyAdminRequest } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  return POST();
+  return NextResponse.json({ error: "Método desativado por segurança." }, { status: 405 });
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const authCheck = await verifyAdminRequest(request);
+  if (!authCheck.authorized) {
+    return NextResponse.json({ success: false, error: authCheck.error }, { status: 401 });
+  }
+
   try {
     const adminDb = getAdminDb();
 

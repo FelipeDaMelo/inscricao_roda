@@ -1,10 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { isLectureUnlimited } from "@/lib/utils";
+import { verifyAdminRequest } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authCheck = await verifyAdminRequest(request);
+  if (!authCheck.authorized) {
+    return NextResponse.json({ success: false, error: authCheck.error }, { status: 401 });
+  }
+
   try {
     const adminDb = getAdminDb();
     const [studentsSnap, lecturesSnap, registrationsSnap] = await Promise.all([

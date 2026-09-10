@@ -3,6 +3,7 @@ import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { hasTimeConflict } from "@/lib/utils";
 import { processRegistration } from "@/lib/registration-service";
+import { verifyAdminRequest } from "@/lib/auth-guard";
 
 // Prevenir pre-rendering no build
 export const dynamic = "force-dynamic";
@@ -11,7 +12,11 @@ export async function POST(request: NextRequest) {
   try {
     const adminDb = getAdminDb();
     const body = await request.json();
-    const { studentId, lectureId, lectureIds, replaceExisting, isAdmin } = body;
+    const { studentId, lectureId, lectureIds, replaceExisting } = body;
+
+    // Apenas requisições com autenticação válida de admin recebem privilégios de administrador
+    const authCheck = await verifyAdminRequest(request);
+    const isAdmin = authCheck.authorized;
 
     const targetLectureIds: string[] = Array.isArray(lectureIds)
       ? lectureIds
@@ -60,7 +65,10 @@ export async function DELETE(request: NextRequest) {
   try {
     const adminDb = getAdminDb();
     const body = await request.json();
-    const { registrationId, studentId, lectureId, clearAll, isAdmin } = body;
+    const { registrationId, studentId, lectureId, clearAll } = body;
+
+    const authCheck = await verifyAdminRequest(request);
+    const isAdmin = authCheck.authorized;
 
     if (!isAdmin) {
       return NextResponse.json(

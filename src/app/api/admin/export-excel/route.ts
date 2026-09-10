@@ -1,11 +1,27 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import * as XLSX from "xlsx";
 import { Lecture, Registration } from "@/types";
+import { verifyAdminRequest } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+function sanitizeCell(val: any): any {
+  if (typeof val === "string") {
+    const trimmed = val.trim();
+    if (["=", "+", "-", "@"].some((prefix) => trimmed.startsWith(prefix))) {
+      return `'${val}`;
+    }
+  }
+  return val;
+}
+
+export async function GET(request: NextRequest) {
+  const authCheck = await verifyAdminRequest(request);
+  if (!authCheck.authorized) {
+    return NextResponse.json({ success: false, error: authCheck.error }, { status: 401 });
+  }
+
   try {
     const adminDb = getAdminDb();
 
@@ -81,13 +97,13 @@ export async function GET() {
         const lec12 = s.reg12 ? lectures.find((l) => l.id === s.reg12?.lectureId) : undefined;
         return [
           idx + 1,
-          s.studentId,
-          s.studentName,
-          s.studentGrade,
-          s.reg11?.lectureTitle || "Não selecionado",
-          lec11?.location || (lec11?.roomNumber ? `Sala ${lec11.roomNumber}` : "-"),
-          s.reg12?.lectureTitle || "Não selecionado",
-          lec12?.location || (lec12?.roomNumber ? `Sala ${lec12.roomNumber}` : "-"),
+          sanitizeCell(s.studentId),
+          sanitizeCell(s.studentName),
+          sanitizeCell(s.studentGrade),
+          sanitizeCell(s.reg11?.lectureTitle || "Não selecionado"),
+          sanitizeCell(lec11?.location || (lec11?.roomNumber ? `Sala ${lec11.roomNumber}` : "-")),
+          sanitizeCell(s.reg12?.lectureTitle || "Não selecionado"),
+          sanitizeCell(lec12?.location || (lec12?.roomNumber ? `Sala ${lec12.roomNumber}` : "-")),
           s.registeredAt ? s.registeredAt.toLocaleString("pt-BR") : "-",
         ];
       }),
@@ -163,9 +179,9 @@ export async function GET() {
         lectureRegs.forEach((reg, i) => {
           sheetRows.push([
             i + 1,
-            reg.studentId,
-            reg.studentName,
-            reg.studentGrade,
+            sanitizeCell(reg.studentId),
+            sanitizeCell(reg.studentName),
+            sanitizeCell(reg.studentGrade),
             "",
             "",
             reg.registeredAt ? new Date(reg.registeredAt).toLocaleString("pt-BR") : "-",

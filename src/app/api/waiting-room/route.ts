@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { isRegistrationOfficiallyReleased } from "@/lib/utils";
+import { verifyAdminRequest } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -196,8 +197,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Chave mestre (19042011) ou admin sempre tem acesso direto
-    if (studentId === "19042011" || body.isAdmin) {
+    // 1. Chave mestre ou admin autenticado sempre tem acesso direto
+    const masterKey = process.env.ADMIN_MASTER_KEY;
+    const authCheck = await verifyAdminRequest(request);
+    const isAdmin = authCheck.authorized;
+
+    if ((masterKey && studentId === masterKey) || isAdmin) {
       return NextResponse.json({
         success: true,
         admitted: true,
