@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
+import { isLectureUnlimited } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,10 @@ export async function GET() {
     lecturesSnap.docs.forEach((doc) => {
       const data = doc.data();
       if (data.isActive) activeLectures++;
-      totalCapacity += data.maxCapacity || 0;
-      totalEnrollments += data.currentEnrollments || 0;
+      if (!isLectureUnlimited(data as any)) {
+        totalCapacity += data.maxCapacity || 0;
+        totalEnrollments += data.currentEnrollments || 0;
+      }
     });
     const availableSpots = Math.max(0, totalCapacity - totalEnrollments);
     return NextResponse.json({

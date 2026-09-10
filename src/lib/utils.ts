@@ -69,6 +69,41 @@ export function getCapacityText(current: number, max: number): string {
 }
 
 /**
+ * Verifica se uma atividade/palestra possui capacidade ilimitada de alunos
+ * (ex: Palestra Geral de sábado, que serve apenas para controle de presença/participação)
+ */
+export function isLectureUnlimited(lecture?: {
+  title?: string;
+  maxCapacity?: number;
+  isUnlimited?: boolean;
+  date?: string;
+  location?: string;
+  roomNumber?: string;
+} | null): boolean {
+  if (!lecture) return false;
+  if (lecture.isUnlimited) return true;
+  if (lecture.maxCapacity === 0 || (lecture.maxCapacity && lecture.maxCapacity >= 9999)) return true;
+
+  // Regra de negócio: Palestra Geral de sábado (19/09) não tem limite de alunos
+  const isSaturday = lecture.date === "2026-09-19" || !lecture.date;
+  const titleLower = (lecture.title || "").toLowerCase();
+  const locLower = (lecture.location || "").toLowerCase();
+  const roomLower = (lecture.roomNumber || "").toLowerCase();
+
+  if (
+    isSaturday &&
+    (titleLower.includes("palestra geral") ||
+      titleLower.includes("profissões do futuro") ||
+      locLower.includes("auditório") ||
+      roomLower.includes("auditório"))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Formata data para exibição (DD/MM/AAAA)
  */
 export function formatDate(dateStr: string): string {
@@ -120,3 +155,27 @@ export function hasTimeConflict(
   // Dois intervalos conflitam se um começa antes do outro terminar
   return a.start < b.end && b.start < a.end;
 }
+
+/**
+ * Data e horário oficial de abertura: Sexta-feira, 11/09/2026 às 17:00:00 (Horário de Brasília)
+ * Offset UTC-3 garante exatidão de liberação no servidor da Vercel
+ */
+export const OFFICIAL_RELEASE_DATE_ISO = "2026-09-11T17:00:00-03:00";
+export const OFFICIAL_RELEASE_TIMESTAMP = new Date(OFFICIAL_RELEASE_DATE_ISO).getTime();
+
+/**
+ * Valida se as inscrições já estão liberadas segundo o relógio do servidor Vercel
+ */
+export function isRegistrationOfficiallyReleased(settings?: {
+  releaseDate?: string;
+  forceOpen?: boolean;
+  registrationOpen?: boolean;
+} | null): boolean {
+  if (settings?.forceOpen === true) return true;
+  if (settings?.registrationOpen === false) return false;
+
+  const targetDateStr = settings?.releaseDate || OFFICIAL_RELEASE_DATE_ISO;
+  const targetTimestamp = new Date(targetDateStr).getTime();
+  return Date.now() >= targetTimestamp;
+}
+

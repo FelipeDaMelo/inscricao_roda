@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
+import {
+  OFFICIAL_RELEASE_DATE_ISO,
+  OFFICIAL_RELEASE_TIMESTAMP,
+  isRegistrationOfficiallyReleased,
+} from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -7,30 +12,37 @@ export async function GET() {
   try {
     const adminDb = getAdminDb();
     const doc = await adminDb.collection("settings").doc("event").get();
-    if (!doc.exists) {
-      // Configuração padrão caso não exista ainda
-      return NextResponse.json({
-        success: true,
-        data: {
-          eventName: "Roda de Profissões 2026",
-          eventDate: "2026-09-15",
-          registrationOpen: true,
-          maxLecturesPerStudent: 0, // 0 = ilimitado (respeitando conflito de horário)
-        },
-      });
-    }
+    const rawData = doc.exists ? doc.data() || {} : {};
 
-    const rawData = doc.data() || {};
+    const releaseDate = rawData.releaseDate || OFFICIAL_RELEASE_DATE_ISO;
+    const releaseTimestamp = new Date(releaseDate).getTime() || OFFICIAL_RELEASE_TIMESTAMP;
+    const serverNow = Date.now();
+    const isReleased = isRegistrationOfficiallyReleased({
+      releaseDate,
+      forceOpen: rawData.forceOpen,
+      registrationOpen: rawData.registrationOpen,
+    });
+
+    // A partir das 17h do dia 11/09, as inscrições de AMBOS os dias ficam liberadas
+    // Antes das 17h, as inscrições ficam bloqueadas
+    const day16Open = isReleased && rawData.day16Open !== false;
+    const day19Open = isReleased && rawData.day19Open !== false;
+
     return NextResponse.json({
       success: true,
       data: {
-        eventName: rawData.eventName || "Roda de Conversas – 16/09",
+        eventName: rawData.eventName || "Roda de Conversas & Oficinas 2026",
         eventDate: rawData.eventDate || "2026-09-16",
-        registrationOpen: rawData.registrationOpen !== false,
-        day16Open: rawData.day16Open !== false,
-        day19Open: rawData.day19Open === true,
         maxLecturesPerStudent: rawData.maxLecturesPerStudent || 2,
         ...rawData,
+        releaseDate,
+        releaseTimestamp,
+        serverTime: new Date().toISOString(),
+        serverTimestamp: serverNow,
+        isReleased,
+        registrationOpen: isReleased && rawData.registrationOpen !== false,
+        day16Open,
+        day19Open,
       },
     });
   } catch (error: any) {

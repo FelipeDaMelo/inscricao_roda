@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Lecture, LectureCategory } from "@/types";
-import { LECTURE_CATEGORIES, getCategoryBadgeClasses } from "@/lib/utils";
+import { LECTURE_CATEGORIES, getCategoryBadgeClasses, isLectureUnlimited } from "@/lib/utils";
 import {
   Plus,
   Edit2,
@@ -235,27 +235,41 @@ export default function LecturesAdminPage() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <div className="flex items-center gap-1.5 font-bold text-neutral-800">
-                        <Users className="w-4 h-4 text-neutral-400" />
-                        <span>{lecture.currentEnrollments} / {lecture.maxCapacity}</span>
-                      </div>
-                      <div className="w-24 h-1.5 bg-neutral-100 rounded-full mt-1.5 overflow-hidden">
-                        <div
-                          className={`h-full ${
-                            lecture.currentEnrollments >= lecture.maxCapacity
-                              ? "bg-red-500"
-                              : "bg-emerald-500"
-                          }`}
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              Math.round(
-                                (lecture.currentEnrollments / lecture.maxCapacity) * 100
-                              )
-                            )}%`,
-                          }}
-                        />
-                      </div>
+                      {isLectureUnlimited(lecture) ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 font-bold text-purple-700 text-xs">
+                            <Users className="w-4 h-4 text-purple-600" />
+                            <span>{lecture.currentEnrollments} inscritos</span>
+                          </div>
+                          <span className="inline-block px-2 py-0.5 text-[10px] font-extrabold bg-purple-100 text-purple-800 rounded-md">
+                            Sem limite de alunos
+                          </span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-1.5 font-bold text-neutral-800">
+                            <Users className="w-4 h-4 text-neutral-400" />
+                            <span>{lecture.currentEnrollments} / {lecture.maxCapacity}</span>
+                          </div>
+                          <div className="w-24 h-1.5 bg-neutral-100 rounded-full mt-1.5 overflow-hidden">
+                            <div
+                              className={`h-full ${
+                                lecture.currentEnrollments >= lecture.maxCapacity
+                                  ? "bg-red-500"
+                                  : "bg-emerald-500"
+                              }`}
+                              style={{
+                                width: `${Math.min(
+                                  100,
+                                  Math.round(
+                                    (lecture.currentEnrollments / lecture.maxCapacity) * 100
+                                  )
+                                )}%`,
+                              }}
+                            />
+                          </div>
+                        </>
+                      )}
                     </td>
                     <td className="p-4">
                       {lecture.isActive ? (

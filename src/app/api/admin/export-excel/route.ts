@@ -128,17 +128,22 @@ export async function GET() {
           return (a.studentId || "").localeCompare(b.studentId || "");
         });
 
-      const hourPrefix = lecture.timeSlot.startsWith("11") ? "11h" : "12h";
+      const isSaturday = lecture.date === "2026-09-19";
+      const hourPrefix = isSaturday
+        ? "Sáb"
+        : lecture.timeSlot.startsWith("11")
+        ? "11h"
+        : "12h";
       const roomLabel = lecture.roomNumber ? `Sala ${lecture.roomNumber}` : lecture.location || "Sala";
       const sheetName = `${hourPrefix} - ${roomLabel}`.slice(0, 31);
 
       const sheetRows: (string | number)[][] = [
         ["COLÉGIO MARISTA GLÓRIA — LISTA DE PRESENÇA OFICIAL"],
-        ["Evento: Roda de Conversas – 16/09/2026"],
+        [isSaturday ? "Evento: Oficinas & Palestra Geral – 19/09/2026" : "Evento: Roda de Conversas – 16/09/2026"],
         [`Horário: ${lecture.timeSlot} | Local: ${lecture.location || `Sala ${lecture.roomNumber}`}`],
-        [`Área: ${lecture.title}`],
-        [`Cursos Abordados: ${lecture.courses || lecture.description || "Geral"}`],
-        [`Professor(a) Mediador(a): ${lecture.mediator || lecture.speaker}`],
+        [`Atividade: ${lecture.title}`],
+        [`Cursos / Temas: ${lecture.courses || lecture.description || "Geral"}`],
+        [`Professor(a) / Mediador(a): ${lecture.mediator || lecture.speaker}`],
         [`Total de Estudantes Inscritos: ${lectureRegs.length} (Ordem Alfabética A-Z)`],
         [],
         [

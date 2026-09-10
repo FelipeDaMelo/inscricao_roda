@@ -26,6 +26,7 @@ export interface Lecture {
   currentEnrollments: number;
   category: LectureCategory;
   isActive: boolean;
+  isUnlimited?: boolean;
   createdAt?: Date;
 }
 

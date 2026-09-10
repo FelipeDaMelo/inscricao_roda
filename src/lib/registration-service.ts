@@ -1,6 +1,6 @@
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
-import { hasTimeConflict } from "@/lib/utils";
+import { hasTimeConflict, isLectureUnlimited, isRegistrationOfficiallyReleased } from "@/lib/utils";
 
 export interface ProcessRegistrationParams {
   studentId: string;
@@ -27,10 +27,18 @@ export async function processRegistration({
 
   // Executar via Firestore Transaction para garantir ACID, FIFO e integridade de vagas
   const result = await adminDb.runTransaction(async (transaction) => {
-    // 1. Verificar se inscrições estão abertas
+    // 1. Verificar se inscrições estão abertas e liberadas (sexta-feira 11/09 às 17h, horário do servidor)
     const settingsRef = adminDb.collection("settings").doc("event");
     const settingsDoc = await transaction.get(settingsRef);
-    if (settingsDoc.exists && settingsDoc.data()?.registrationOpen === false) {
+    const settingsData = settingsDoc.exists ? settingsDoc.data() || {} : {};
+
+    if (!isAdmin && !isRegistrationOfficiallyReleased(settingsData)) {
+      throw new Error(
+        "As inscrições só serão liberadas nesta sexta-feira (11/09) às 17h00 (horário oficial do servidor)."
+      );
+    }
+
+    if (settingsDoc.exists && settingsData.registrationOpen === false) {
       throw new Error("As inscrições estão temporariamente fechadas pela coordenação.");
     }
 
@@ -64,7 +72,9 @@ export async function processRegistration({
         throw new Error(`A palestra "${data.title}" não está mais ativa.`);
       }
 
-      if (data.currentEnrollments >= data.maxCapacity) {
+      // Verifica vagas (exceto se a atividade for ilimitada, como a Palestra Geral de sábado que serve para controle de presença)
+      const unlimited = isLectureUnlimited(data);
+      if (!unlimited && data.currentEnrollments >= data.maxCapacity) {
         throw new Error(`Que pena! As vagas para "${data.title}" (${data.timeSlot}) acabaram de esgotar.`);
       }
 

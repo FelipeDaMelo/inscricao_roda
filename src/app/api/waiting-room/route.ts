@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { isRegistrationOfficiallyReleased } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -202,6 +203,22 @@ export async function POST(request: NextRequest) {
         admitted: true,
         inFront: 0,
       });
+    }
+
+    // 1.1 Verificar se as inscrições já estão liberadas no relógio do servidor Vercel
+    const settingsDoc = await adminDb.collection("settings").doc("event").get();
+    const settingsData = settingsDoc.exists ? settingsDoc.data() || {} : {};
+
+    if (!isRegistrationOfficiallyReleased(settingsData)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "As inscrições só serão liberadas nesta sexta-feira (11/09) às 17h00 (horário oficial do servidor).",
+          releaseDate: settingsData.releaseDate || "2026-09-11T17:00:00-03:00",
+        },
+        { status: 403 }
+      );
     }
 
     // 2. Verificar se o estudante já possui sessão ativa válida

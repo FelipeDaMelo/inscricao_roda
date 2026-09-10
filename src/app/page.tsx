@@ -38,6 +38,7 @@ import toast from "react-hot-toast";
 import {
   getCategoryBadgeClasses,
   formatDate,
+  isLectureUnlimited,
 } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -80,12 +81,108 @@ export default function HomePage() {
   const [showMatricula, setShowMatricula] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Multi-Dia (16/09 e 19/09)
+  // Multi-Dia (16/09 e 19/09) e Liberação Programada (11/09 às 17h)
   const [selectedEventDate, setSelectedEventDate] = useState<"2026-09-16" | "2026-09-19">("2026-09-16");
   const [eventSettings, setEventSettings] = useState<{
     day16Open?: boolean;
     day19Open?: boolean;
-  }>({ day16Open: true, day19Open: false });
+    isReleased?: boolean;
+    releaseDate?: string;
+    releaseTimestamp?: number;
+    serverTime?: string;
+    serverOffset?: number;
+  }>({
+    day16Open: false,
+    day19Open: false,
+    isReleased: false,
+    releaseDate: "2026-09-11T17:00:00-03:00",
+    releaseTimestamp: new Date("2026-09-11T17:00:00-03:00").getTime(),
+    serverOffset: 0,
+  });
+
+  const [countdown, setCountdown] = useState<{
+    days: string;
+    hours: string;
+    minutes: string;
+    seconds: string;
+    isOver: boolean;
+  }>({
+    days: "00",
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+    isOver: false,
+  });
+
+  const fetchSettings = async () => {
+    try {
+      const clientFetchStart = Date.now();
+      const res = await fetch("/api/settings");
+      const json = await res.json();
+      if (json.success && json.data) {
+        const d = json.data;
+        const serverOffset = (d.serverTimestamp || Date.now()) - clientFetchStart;
+        setRegistrationOpen(d.registrationOpen !== false);
+        setEventSettings({
+          day16Open: Boolean(d.day16Open),
+          day19Open: Boolean(d.day19Open),
+          isReleased: Boolean(d.isReleased),
+          releaseDate: d.releaseDate || "2026-09-11T17:00:00-03:00",
+          releaseTimestamp: d.releaseTimestamp || new Date("2026-09-11T17:00:00-03:00").getTime(),
+          serverTime: d.serverTime,
+          serverOffset,
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao carregar configurações do servidor:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const targetTs =
+        eventSettings.releaseTimestamp ||
+        new Date("2026-09-11T17:00:00-03:00").getTime();
+      const currentServerTime = Date.now() + (eventSettings.serverOffset || 0);
+      const remainingMs = targetTs - currentServerTime;
+
+      if (remainingMs <= 0) {
+        setCountdown({
+          days: "00",
+          hours: "00",
+          minutes: "00",
+          seconds: "00",
+          isOver: true,
+        });
+        if (!eventSettings.isReleased) {
+          fetchSettings();
+        }
+        return;
+      }
+
+      const totalSec = Math.floor(remainingMs / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const minutes = Math.floor((totalSec % 3600) / 60);
+      const seconds = totalSec % 60;
+
+      setCountdown({
+        days: days.toString().padStart(2, "0"),
+        hours: hours.toString().padStart(2, "0"),
+        minutes: minutes.toString().padStart(2, "0"),
+        seconds: seconds.toString().padStart(2, "0"),
+        isOver: false,
+      });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [eventSettings.releaseTimestamp, eventSettings.serverOffset, eventSettings.isReleased]);
 
   // Fila de Espera Estilo Restaurante (Gatekeeper com máx 30 conexões)
   const [waitingRoomState, setWaitingRoomState] = useState<{
@@ -262,16 +359,8 @@ export default function HomePage() {
         setLectures(allLecs);
       }
 
-      // Verificar configurações e status de liberação de cada data
-      const settingsRes = await fetch("/api/settings");
-      const settingsData = await settingsRes.json();
-      if (settingsData.success && settingsData.data) {
-        setRegistrationOpen(settingsData.data.registrationOpen !== false);
-        setEventSettings({
-          day16Open: settingsData.data.day16Open !== false,
-          day19Open: settingsData.data.day19Open === true,
-        });
-      }
+      // Verificar configurações e status de liberação atualizado do servidor
+      await fetchSettings();
 
       // Navegar para a tela de escolha dos 2 boxes (16/09 e 19/09)
       setStep("select_day");
@@ -285,6 +374,25 @@ export default function HomePage() {
 
   const handleAccessDay = async (date: "2026-09-16" | "2026-09-19") => {
     if (!student) return;
+
+    // Se ainda não liberado no relógio do servidor Vercel
+    if (!eventSettings.isReleased && student.id !== "19042011") {
+      toast.error(
+        "As inscrições só serão liberadas nesta sexta-feira (11/09) às 17h00 (horário oficial do servidor)."
+      );
+      return;
+    }
+
+    if (date === "2026-09-16" && !eventSettings.day16Open) {
+      toast.error("As inscrições para a Roda de Conversas (16/09) não estão disponíveis no momento.");
+      return;
+    }
+
+    if (date === "2026-09-19" && !eventSettings.day19Open) {
+      toast.error("As inscrições para as Oficinas de Sábado (19/09) não estão disponíveis no momento.");
+      return;
+    }
+
     setSelectedEventDate(date);
     setSelectedRooms([]);
     setLoading(true);
@@ -296,6 +404,11 @@ export default function HomePage() {
         body: JSON.stringify({ studentId: student.id }),
       });
       const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || "Acesso ainda não liberado pelo servidor.");
+        return;
+      }
 
       if (data.admitted) {
         // Vaga liberada imediatamente (< 30)
@@ -495,7 +608,8 @@ export default function HomePage() {
     if (selectedEventDate === "2026-09-19") {
       // No sábado, o estudante escolhe 1 atividade
       const lec = room.lectureSingle || room.lecture11h || room.lecture12h;
-      const isFull = Boolean(lec && (lec.currentEnrollments ?? 0) >= (lec.maxCapacity ?? 35));
+      const isUnlimited = isLectureUnlimited(lec);
+      const isFull = Boolean(!isUnlimited && lec && (lec.currentEnrollments ?? 0) >= (lec.maxCapacity ?? 35));
       if (isFull) {
         toast.error("Esta atividade atingiu a capacidade máxima e está com as vagas esgotadas.");
         return;
@@ -742,6 +856,54 @@ export default function HomePage() {
                 </div>
               </div>
 
+              {/* Aviso Oficial de Abertura das Inscrições */}
+              <div
+                className={`w-full rounded-2xl p-4 mb-6 border transition-all ${
+                  eventSettings.isReleased
+                    ? "bg-emerald-50/90 border-emerald-200 text-emerald-950"
+                    : "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 text-amber-950 shadow-xs"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`p-2 rounded-xl flex-shrink-0 mt-0.5 ${
+                      eventSettings.isReleased
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-amber-100 text-amber-800"
+                    }`}
+                  >
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 text-xs leading-relaxed">
+                    {eventSettings.isReleased ? (
+                      <div>
+                        <p className="font-heading font-black text-emerald-900 text-sm flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                          Inscrições Abertas!
+                        </p>
+                        <p className="text-emerald-800 text-xs mt-0.5">
+                          As vagas para a <b>Roda de Conversas (16/09)</b> e <b>Oficinas de Sábado (19/09)</b> estão oficialmente liberadas. Digite sua matrícula para prosseguir.
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
+                          <p className="font-heading font-black text-amber-950 text-sm">
+                            Abertura: Sexta-feira (11/09) às 17h00
+                          </p>
+                          <span className="badge bg-amber-200/80 text-amber-900 font-extrabold text-[10px] px-2 py-0.5">
+                            Horário Oficial do Servidor
+                          </span>
+                        </div>
+                        <p className="text-amber-900 text-xs leading-relaxed">
+                          As inscrições para <b>ambos os dias (16/09 e 19/09)</b> serão liberadas pontualmente às <b>17h00</b>. Digite sua matrícula abaixo para validar seu acesso e consultar a programação antecipadamente.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <div className="relative">
                   <input
@@ -896,6 +1058,54 @@ export default function HomePage() {
               </p>
             </div>
 
+            {/* Banner de Contagem Regressiva para Abertura Oficial */}
+            {!eventSettings.isReleased && (
+              <div className="w-full bg-gradient-to-br from-neutral-900 via-marista-dark to-slate-900 text-white rounded-3xl p-6 sm:p-7 mb-8 shadow-2xl border border-cyan-500/30 text-center relative overflow-hidden animate-fade-in">
+                <div className="inline-flex items-center gap-2 bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 px-3 py-1 rounded-full text-xs font-bold mb-3 shadow-inner">
+                  <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Abertura Oficial das Inscrições</span>
+                </div>
+                <h3 className="font-heading font-black text-xl sm:text-2xl text-white mb-2">
+                  Inscrições Liberadas Sexta-feira (11/09) às 17h00
+                </h3>
+                <p className="text-neutral-300 text-xs sm:text-sm max-w-xl mx-auto mb-6 leading-relaxed">
+                  As inscrições para <b>ambos os dias (16/09 e 19/09)</b> serão abertas pontualmente às <b>17h00</b> no horário oficial do servidor.
+                </p>
+
+                {/* Bloco de Contagem Regressiva Sincronizada */}
+                <div className="flex items-center justify-center gap-2 sm:gap-4 font-mono select-none">
+                  {Number(countdown.days) > 0 && (
+                    <>
+                      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 min-w-[65px] sm:min-w-[80px] border border-white/15 shadow-lg">
+                        <span className="block text-2xl sm:text-3xl font-black text-white">{countdown.days}</span>
+                        <span className="text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Dias</span>
+                      </div>
+                      <span className="text-2xl font-bold text-white/30">:</span>
+                    </>
+                  )}
+                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 min-w-[65px] sm:min-w-[80px] border border-white/15 shadow-lg">
+                    <span className="block text-2xl sm:text-3xl font-black text-white">{countdown.hours}</span>
+                    <span className="text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Horas</span>
+                  </div>
+                  <span className="text-2xl font-bold text-white/30">:</span>
+                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 min-w-[65px] sm:min-w-[80px] border border-white/15 shadow-lg">
+                    <span className="block text-2xl sm:text-3xl font-black text-white">{countdown.minutes}</span>
+                    <span className="text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Min</span>
+                  </div>
+                  <span className="text-2xl font-bold text-white/30">:</span>
+                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 min-w-[65px] sm:min-w-[80px] border border-white/15 shadow-lg">
+                    <span className="block text-2xl sm:text-3xl font-black text-cyan-400 animate-pulse">{countdown.seconds}</span>
+                    <span className="text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Seg</span>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex items-center justify-center gap-1.5 text-neutral-400 text-[11px]">
+                  <Lock className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Horário oficial verificado e sincronizado diretamente no servidor Vercel.</span>
+                </div>
+              </div>
+            )}
+
             {/* Grid dos 2 Boxes Principais: 16/09 e 19/09 */}
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {/* CARD 1: 16/09/2026 - Roda de Conversas */}
@@ -916,10 +1126,15 @@ export default function HomePage() {
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Inscrição Garantida
                       </span>
-                    ) : eventSettings.day16Open !== false ? (
+                    ) : eventSettings.day16Open ? (
                       <span className="badge bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-[11px] px-2.5 py-1 flex items-center gap-1">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                         Inscrições Abertas
+                      </span>
+                    ) : !eventSettings.isReleased ? (
+                      <span className="badge bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-[11px] px-2.5 py-1 flex items-center gap-1">
+                        <Lock className="w-3 h-3 text-amber-700" />
+                        Liberação 11/09 às 17h
                       </span>
                     ) : (
                       <span className="badge bg-neutral-200 text-neutral-700 font-extrabold text-[11px] px-2.5 py-1">
@@ -973,7 +1188,7 @@ export default function HomePage() {
                       <FileText className="w-4 h-4" />
                       Visualizar Comprovante Oficial
                     </button>
-                  ) : eventSettings.day16Open !== false ? (
+                  ) : eventSettings.day16Open ? (
                     <button
                       onClick={() => handleAccessDay("2026-09-16")}
                       disabled={loading}
@@ -987,6 +1202,14 @@ export default function HomePage() {
                           <ChevronRight className="w-4 h-4" />
                         </>
                       )}
+                    </button>
+                  ) : !eventSettings.isReleased ? (
+                    <button
+                      disabled
+                      className="w-full py-3.5 px-5 rounded-xl font-bold text-sm bg-neutral-100 text-neutral-500 border border-neutral-200 cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      <Lock className="w-4 h-4 text-neutral-400" />
+                      Liberado Sexta (11/09) às 17h00
                     </button>
                   ) : (
                     <button
@@ -1023,6 +1246,11 @@ export default function HomePage() {
                       <span className="badge bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-[11px] px-2.5 py-1 flex items-center gap-1">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                         Inscrições Abertas
+                      </span>
+                    ) : !eventSettings.isReleased ? (
+                      <span className="badge bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-[11px] px-2.5 py-1 flex items-center gap-1">
+                        <Lock className="w-3 h-3 text-amber-700" />
+                        Liberação 11/09 às 17h
                       </span>
                     ) : (
                       <span className="badge bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-[11px] px-2.5 py-1 flex items-center gap-1">
@@ -1095,10 +1323,14 @@ export default function HomePage() {
                       <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
                         <p className="font-bold flex items-center gap-1 mb-0.5">
                           <Lock className="w-3.5 h-3.5 text-amber-700" />
-                          Aguardando Liberação da Coordenação
+                          {!eventSettings.isReleased
+                            ? "Abertura Oficial: Sexta (11/09) às 17h00"
+                            : "Aguardando Liberação da Coordenação"}
                         </p>
                         <p className="text-[11px] text-amber-800 leading-relaxed">
-                          A abertura das inscrições para este sábado será liberada em breve pelo colégio.
+                          {!eventSettings.isReleased
+                            ? "As inscrições para todas as atividades de sábado serão abertas juntamente com a quarta-feira pontualmente às 17h00 no horário do servidor."
+                            : "A abertura das inscrições para este sábado será liberada em breve pelo colégio."}
                         </p>
                       </div>
                     )}
@@ -1142,6 +1374,14 @@ export default function HomePage() {
                           <ChevronRight className="w-4 h-4" />
                         </>
                       )}
+                    </button>
+                  ) : !eventSettings.isReleased ? (
+                    <button
+                      disabled
+                      className="w-full py-3.5 px-5 rounded-xl font-bold text-sm bg-neutral-100 text-neutral-500 border border-neutral-200 cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      <Lock className="w-4 h-4 text-neutral-400" />
+                      Liberado Sexta (11/09) às 17h00
                     </button>
                   ) : (
                     <button
@@ -1849,7 +2089,14 @@ export default function HomePage() {
                   );
                   const isCompletelyFull = isFull11 && isFull12;
 
+                  const isUnlimitedDay19 = Boolean(
+                    isDay19 &&
+                    room.lectureSingle &&
+                    isLectureUnlimited(room.lectureSingle)
+                  );
+
                   const isFullDay19 = Boolean(
+                    !isUnlimitedDay19 &&
                     room.lectureSingle &&
                     (room.lectureSingle.currentEnrollments ?? 0) >= (room.lectureSingle.maxCapacity ?? 20)
                   );
@@ -1893,6 +2140,12 @@ export default function HomePage() {
                               <span className="badge bg-cyan-950 text-cyan-300 font-bold text-[11px] px-2 py-0.5 flex items-center gap-1 shadow-sm">
                                 <Clock className="w-3 h-3 text-cyan-400" />
                                 {room.lectureSingle.timeSlot.replace(":", "h").replace(":", "h").replace("-", "às")}
+                              </span>
+                            )}
+                            {isDay19 && isUnlimitedDay19 && (
+                              <span className="badge bg-purple-100 text-purple-900 border border-purple-300 font-bold text-[11px] px-2 py-0.5 flex items-center gap-1 shadow-sm">
+                                <Users className="w-3 h-3 text-purple-700" />
+                                Vagas Abertas • Inscrição de Participação
                               </span>
                             )}
                             <span className={`badge ${getCategoryBadgeClasses(room.category)} font-bold text-[11px] ${isGray ? "opacity-60 grayscale" : ""}`}>
@@ -2021,6 +2274,10 @@ export default function HomePage() {
                               <div className="w-full py-2 rounded-xl bg-neutral-200 text-neutral-500 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed">
                                 <Lock className="w-3.5 h-3.5 text-neutral-400" />
                                 <span>Vagas Esgotadas</span>
+                              </div>
+                            ) : isUnlimitedDay19 ? (
+                              <div className="w-full py-2 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 font-bold text-xs flex items-center justify-center gap-1.5 group-hover:bg-purple-700 group-hover:text-white transition-all">
+                                <span>Garantir Participação na Palestra Geral</span>
                               </div>
                             ) : (
                               <div className="w-full py-2 rounded-xl bg-neutral-100 text-neutral-600 font-bold text-xs flex items-center justify-center gap-1.5 group-hover:bg-marista-primary group-hover:text-white transition-all">
@@ -2313,6 +2570,15 @@ export default function HomePage() {
                     <p className="text-xs text-neutral-600">
                       Mediador(a): <b>{selectedRoom1Data.mediator || selectedRoom1Data.speaker}</b>
                     </p>
+                  )}
+                  {selectedRoom1Data.lectureSingle && isLectureUnlimited(selectedRoom1Data.lectureSingle) && (
+                    <div className="p-3 rounded-xl bg-purple-50/90 border border-purple-200 text-xs text-purple-900 flex items-start gap-2">
+                      <Users className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <div className="text-[11px] leading-relaxed">
+                        <b className="font-bold text-purple-950 block">Atividade com Participação Livre:</b>
+                        Esta palestra geral no auditório não possui limite de vagas. Sua inscrição serve para confirmar a sua presença e apoiar a organização do evento.
+                      </div>
+                    </div>
                   )}
                 </div>
               ) : (

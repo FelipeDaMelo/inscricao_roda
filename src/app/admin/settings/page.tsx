@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Settings, Power, Calendar, Save, ShieldCheck, Loader2 } from "lucide-react";
+import { Settings, Power, Calendar, Save, ShieldCheck, Loader2, Clock } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function SettingsAdminPage() {
@@ -128,6 +128,73 @@ export default function SettingsAdminPage() {
                 }`}
               >
                 {settings.registrationOpen ? "Fechar Inscrições" : "Abrir Inscrições"}
+              </button>
+            </div>
+          </div>
+
+          {/* Card Abertura Automática Programada (11/09 às 17h) */}
+          <div className="bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-sm space-y-4">
+            <h2 className="font-heading font-bold text-lg text-neutral-800 border-b border-neutral-100 pb-3 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-marista-primary" />
+                Abertura Automática das Inscrições
+              </span>
+              <span
+                className={`text-xs font-bold px-3 py-1 rounded-full ${
+                  (settings as any).isReleased
+                    ? "bg-emerald-100 text-emerald-800"
+                    : "bg-amber-100 text-amber-900 border border-amber-300"
+                }`}
+              >
+                {(settings as any).isReleased
+                  ? "✓ Inscrições Oficialmente Liberadas"
+                  : "🔒 Bloqueado até 11/09 às 17h00"}
+              </span>
+            </h2>
+
+            <div className="bg-neutral-50 rounded-xl p-4 border border-neutral-200 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 font-semibold">Data e Horário Programados:</span>
+                <span className="font-bold text-neutral-800">
+                  Sexta-feira, 11/09/2026 às 17h00 (Horário de Brasília)
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 font-semibold">Horário Atual do Servidor Vercel:</span>
+                <span className="font-mono text-neutral-700">
+                  {(settings as any).serverTime
+                    ? new Date((settings as any).serverTime).toLocaleString("pt-BR", {
+                        timeZone: "America/Sao_Paulo",
+                      }) + " (BRT)"
+                    : "Sincronizando..."}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl border border-dashed border-amber-300 bg-amber-50/50 flex items-center justify-between gap-4">
+              <div>
+                <p className="font-bold text-xs text-amber-950">
+                  Liberar Imediatamente para Testes (Override)
+                </p>
+                <p className="text-[11px] text-amber-800 mt-0.5">
+                  Ative esta opção apenas se desejar antecipar a liberação das inscrições antes das 17h do dia 11/09.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setSettings((prev: any) => ({
+                    ...prev,
+                    forceOpen: !prev.forceOpen,
+                  }))
+                }
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                  (settings as any).forceOpen
+                    ? "bg-amber-600 hover:bg-amber-700 text-white"
+                    : "bg-neutral-200 hover:bg-neutral-300 text-neutral-700"
+                }`}
+              >
+                {(settings as any).forceOpen ? "Override Ativo (Liberado)" : "Manter Bloqueio Automático"}
               </button>
             </div>
           </div>

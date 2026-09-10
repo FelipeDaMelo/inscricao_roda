@@ -18,11 +18,17 @@ function getAdminApp(): App {
     return _adminApp;
   }
 
-  // A private key vem com \n escapados — precisamos converter
-  const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(
-    /\\n/g,
-    "\n"
-  );
+  // A private key pode vir com aspas ou \n escapados dependendo de como foi importada no Vercel
+  let privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+  if (privateKey) {
+    if (
+      (privateKey.startsWith('"') && privateKey.endsWith('"')) ||
+      (privateKey.startsWith("'") && privateKey.endsWith("'"))
+    ) {
+      privateKey = privateKey.slice(1, -1);
+    }
+    privateKey = privateKey.replace(/\\n/g, "\n");
+  }
 
   _adminApp = initializeApp({
     credential: cert({
