@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   Estilos Globais — Roda de Profissões
+   Colégio Marista Nossa Senhora da Glória
+   ============================================ */
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-800 font-sans;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer components {
+  /* Glass Card */
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-glass;
+  }
+
+  .glass-card-dark {
+    background: rgba(0, 52, 89, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    @apply border border-white/10 rounded-2xl;
+  }
+
+  /* Botão Primário */
+  .btn-primary {
+    @apply bg-marista-primary text-white font-semibold px-6 py-3 rounded-xl
+           transition-all duration-300 ease-out
+           hover:bg-marista-light hover:shadow-lg hover:-translate-y-0.5
+           active:translate-y-0 active:shadow-md
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none;
+  }
+
+  /* Botão Secundário */
+  .btn-secondary {
+    @apply bg-white text-marista-primary font-semibold px-6 py-3 rounded-xl
+           border-2 border-marista-primary/20
+           transition-all duration-300 ease-out
+           hover:border-marista-primary hover:bg-marista-50 hover:shadow-md hover:-translate-y-0.5
+           active:translate-y-0;
+  }
+
+  /* Botão Danger */
+  .btn-danger {
+    @apply bg-danger-600 text-white font-semibold px-6 py-3 rounded-xl
+           transition-all duration-300 ease-out
+           hover:bg-danger-700 hover:shadow-lg hover:-translate-y-0.5
+           active:translate-y-0;
+  }
+
+  /* Input Estilizado */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-neutral-200
+           bg-white text-neutral-800 font-medium
+           transition-all duration-300
+           focus:outline-none focus:border-marista-primary focus:ring-4 focus:ring-marista-primary/10
+           placeholder:text-neutral-400;
+  }
+
+  .input-field-lg {
+    @apply input-field text-xl py-4 px-6 text-center tracking-widest;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-bold
+           border uppercase tracking-wider;
+  }
+
+  /* Barra de Capacidade */
+  .capacity-bar {
+    @apply h-2 rounded-full bg-neutral-200 overflow-hidden;
+  }
+
+  .capacity-bar-fill {
+    @apply h-full rounded-full transition-all duration-700 ease-out;
+  }
+
+  /* Animação de entrada escalonada */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
+
+  /* Card de Palestra */
+  .lecture-card {
+    @apply bg-white rounded-2xl border border-neutral-200/60 shadow-card
+           transition-all duration-300 ease-out cursor-pointer
+           hover:shadow-card-hover hover:-translate-y-1 hover:border-marista-primary/30;
+  }
+
+  .lecture-card.selected {
+    @apply border-marista-primary border-2 shadow-card-hover ring-4 ring-marista-primary/10;
+  }
+
+  .lecture-card.full {
+    @apply opacity-60 cursor-not-allowed hover:translate-y-0 hover:shadow-card;
+  }
+
+  /* Sidebar Admin */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-neutral-600
+           transition-all duration-200
+           hover:bg-marista-50 hover:text-marista-primary;
+  }
+
+  .sidebar-link.active {
+    @apply bg-marista-primary text-white shadow-md;
+  }
+
+  /* Toast de sucesso personalizado */
+  .toast-success {
+    @apply bg-success-50 border border-success-500/20 text-success-700;
+  }
+
+  /* Scrollbar customizada */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-100 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-400;
+  }
+}
+
+@layer utilities {
+  /* Gradiente de texto */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-marista-gradient;
+  }
+
+  /* Padrão de fundo sutil */
+  .bg-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgba(0, 82, 136, 0.05) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+
+  /* Decoração flutuante */
+  .float-decoration {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-10px) rotate(2deg); }
+    66% { transform: translateY(5px) rotate(-1deg); }
+  }
+}
