@@ -253,11 +253,10 @@ export default function LecturesAdminPage() {
                           </div>
                           <div className="w-24 h-1.5 bg-neutral-100 rounded-full mt-1.5 overflow-hidden">
                             <div
-                              className={`h-full ${
-                                lecture.currentEnrollments >= lecture.maxCapacity
+                              className={`h-full ${lecture.currentEnrollments >= lecture.maxCapacity
                                   ? "bg-red-500"
                                   : "bg-emerald-500"
-                              }`}
+                                }`}
                               style={{
                                 width: `${Math.min(
                                   100,
