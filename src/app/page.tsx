@@ -824,16 +824,20 @@ export default function HomePage() {
     <main className="min-h-screen">
       {/* ===== STEP 1: MATRÍCULA ===== */}
       {step === "matricula" && (
-        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 sm:p-6 py-8 sm:py-12 relative overflow-hidden">
+          {/* Efeitos de fundo suaves idênticos a todas as telas */}
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-marista-cyan/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-marista-dark/10 rounded-full blur-3xl pointer-events-none" />
+
           <div className="w-full max-w-md flex flex-col items-center z-10 animate-fade-in">
-            {/* Logo oficial */}
-            <div className="mb-8 text-center">
-              <div className="w-[300px] sm:w-[340px] mx-auto relative">
+            {/* Logo oficial padronizado */}
+            <div className="mb-6 sm:mb-8 text-center">
+              <div className="w-[260px] sm:w-[320px] mx-auto relative">
                 <Image
                   src="/logo_1.png"
                   alt="Roda de Profissões Marista Glória"
-                  width={340}
-                  height={150}
+                  width={320}
+                  height={140}
                   className="w-full h-auto object-contain"
                   priority
                 />
@@ -841,7 +845,7 @@ export default function HomePage() {
             </div>
 
             {/* Card de Entrada */}
-            <div className="w-full bg-white border border-neutral-200 rounded-3xl shadow-2xl p-8 md:p-10 animate-slide-up">
+            <div className="w-full bg-white border border-neutral-200 rounded-3xl shadow-xl sm:shadow-2xl p-5 sm:p-8 md:p-10 animate-slide-up">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-marista-50 border border-marista-100 flex items-center justify-center text-marista-dark shadow-sm">
                   <GraduationCap className="w-6 h-6 text-marista-cyan" />
@@ -914,9 +918,9 @@ export default function HomePage() {
                     onChange={(e) => setMatricula(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleLookupStudent()}
                     placeholder="Ex: 10720..."
-                    className="w-full px-5 py-4 rounded-xl bg-neutral-50 border-2 border-neutral-200
-                               text-neutral-800 text-2xl text-center tracking-[0.15em] font-bold
-                               placeholder:text-neutral-300 placeholder:tracking-normal placeholder:text-base
+                    className="w-full px-4 sm:px-5 py-3.5 sm:py-4 rounded-xl bg-neutral-50 border-2 border-neutral-200
+                               text-neutral-800 text-xl sm:text-2xl text-center tracking-[0.12em] sm:tracking-[0.15em] font-bold
+                               placeholder:text-neutral-300 placeholder:tracking-normal placeholder:text-sm sm:placeholder:text-base
                                focus:outline-none focus:border-marista-cyan focus:bg-white focus:ring-4 focus:ring-marista-cyan/10
                                transition-all shadow-inner pr-12"
                     autoFocus
@@ -926,7 +930,7 @@ export default function HomePage() {
                     onClick={() => setShowMatricula(!showMatricula)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-marista-cyan transition-colors"
                   >
-                    {showMatricula ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+                    {showMatricula ? <EyeOff className="w-5 h-5 sm:w-6 sm:h-6" /> : <Eye className="w-5 h-5 sm:w-6 sm:h-6" />}
                   </button>
                 </div>
 
@@ -946,7 +950,7 @@ export default function HomePage() {
                   id="btn-acessar"
                   onClick={handleLookupStudent}
                   disabled={loading}
-                  className={`w-full py-4 rounded-xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 ${matricula.trim() === "19042011"
+                  className={`w-full py-3.5 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 ${matricula.trim() === "19042011"
                     ? "bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl ring-4 ring-emerald-500/25"
                     : "bg-marista-dark text-white hover:bg-marista-cyan hover:shadow-lg"
                     }`}
@@ -999,8 +1003,8 @@ export default function HomePage() {
 
           <div className="w-full max-w-4xl flex flex-col items-center z-10 animate-fade-in">
             {/* Logo oficial idêntico à tela inicial */}
-            <div className="mb-6 text-center">
-              <div className="w-[280px] sm:w-[320px] mx-auto relative">
+            <div className="mb-6 sm:mb-8 text-center">
+              <div className="w-[260px] sm:w-[320px] mx-auto relative">
                 <Image
                   src="/logo_1.png"
                   alt="Roda de Profissões Marista Glória"
@@ -1013,21 +1017,21 @@ export default function HomePage() {
             </div>
 
             {/* Barra de Identificação do Aluno */}
-            <div className="w-full bg-neutral-50 border border-neutral-200 rounded-2xl p-4 sm:p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-              <div className="flex items-center gap-3.5 w-full sm:w-auto">
-                <div className="w-12 h-12 rounded-2xl bg-marista-50 border border-marista-100 flex items-center justify-center text-marista-dark flex-shrink-0">
-                  <User className="w-6 h-6 text-marista-cyan" />
+            <div className="w-full bg-neutral-50 border border-neutral-200 rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 shadow-sm">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-marista-50 border border-marista-100 flex items-center justify-center text-marista-dark flex-shrink-0 shadow-xs">
+                  <User className="w-5 h-5 sm:w-6 sm:h-6 text-marista-cyan" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-black text-marista-cyan uppercase tracking-wider">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] sm:text-xs font-black text-marista-cyan uppercase tracking-wider">
                       Estudante Conectado
                     </span>
                     <span className="text-[10px] font-bold text-neutral-500 bg-neutral-200/60 px-2 py-0.5 rounded-full">
                       Matrícula {student.id}
                     </span>
                   </div>
-                  <h3 className="font-heading font-extrabold text-neutral-900 text-lg sm:text-xl">
+                  <h3 className="font-heading font-extrabold text-neutral-900 text-base sm:text-xl truncate">
                     {student.name}
                   </h3>
                   <p className="text-neutral-500 text-xs font-semibold">
@@ -1038,7 +1042,7 @@ export default function HomePage() {
 
               <button
                 onClick={handleLogout}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-neutral-300 text-neutral-600 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 text-xs font-bold transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-neutral-300 text-neutral-600 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 text-xs font-bold transition-all flex items-center justify-center gap-2 flex-shrink-0"
               >
                 <LogOut className="w-4 h-4" />
                 Trocar Estudante / Sair
@@ -1046,60 +1050,60 @@ export default function HomePage() {
             </div>
 
             {/* Cabeçalho da Escolha */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-6 sm:mb-8">
               <span className="badge bg-marista-light/20 text-marista-dark font-extrabold text-xs px-3 py-1 mb-2 inline-block">
                 Etapa de Inscrição 2026
               </span>
-              <h2 className="text-2xl sm:text-3xl font-heading font-black text-neutral-900">
+              <h2 className="text-xl sm:text-3xl font-heading font-black text-neutral-900">
                 Selecione o Dia do Evento
               </h2>
-              <p className="text-neutral-500 text-sm mt-1 max-w-lg mx-auto">
+              <p className="text-neutral-500 text-xs sm:text-sm mt-1 max-w-lg mx-auto">
                 Escolha a data desejada para selecionar suas palestras ou consultar o comprovante da sua inscrição já confirmada.
               </p>
             </div>
 
             {/* Banner de Contagem Regressiva para Abertura Oficial */}
             {!eventSettings.isReleased && (
-              <div className="w-full bg-gradient-to-br from-neutral-900 via-marista-dark to-slate-900 text-white rounded-3xl p-6 sm:p-7 mb-8 shadow-2xl border border-cyan-500/30 text-center relative overflow-hidden animate-fade-in">
+              <div className="w-full bg-gradient-to-br from-neutral-900 via-marista-dark to-slate-900 text-white rounded-3xl p-5 sm:p-7 mb-6 sm:mb-8 shadow-2xl border border-cyan-500/30 text-center relative overflow-hidden animate-fade-in">
                 <div className="inline-flex items-center gap-2 bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 px-3 py-1 rounded-full text-xs font-bold mb-3 shadow-inner">
                   <Clock className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Abertura Oficial das Inscrições</span>
                 </div>
-                <h3 className="font-heading font-black text-xl sm:text-2xl text-white mb-2">
+                <h3 className="font-heading font-black text-lg sm:text-2xl text-white mb-2 leading-tight">
                   Inscrições Liberadas Sexta-feira (11/09) às 17h00
                 </h3>
-                <p className="text-neutral-300 text-xs sm:text-sm max-w-xl mx-auto mb-6 leading-relaxed">
+                <p className="text-neutral-300 text-xs sm:text-sm max-w-xl mx-auto mb-5 sm:mb-6 leading-relaxed">
                   As inscrições para <b>ambos os dias (16/09 e 19/09)</b> serão abertas pontualmente às <b>17h00</b> no horário oficial do servidor.
                 </p>
 
                 {/* Bloco de Contagem Regressiva Sincronizada */}
-                <div className="flex items-center justify-center gap-2 sm:gap-4 font-mono select-none">
+                <div className="flex items-center justify-center gap-1.5 sm:gap-4 font-mono select-none">
                   {Number(countdown.days) > 0 && (
                     <>
-                      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 min-w-[65px] sm:min-w-[80px] border border-white/15 shadow-lg">
-                        <span className="block text-2xl sm:text-3xl font-black text-white">{countdown.days}</span>
-                        <span className="text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Dias</span>
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-2.5 sm:p-4 min-w-[55px] sm:min-w-[80px] border border-white/15 shadow-lg">
+                        <span className="block text-xl sm:text-3xl font-black text-white">{countdown.days}</span>
+                        <span className="text-[9px] sm:text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Dias</span>
                       </div>
-                      <span className="text-2xl font-bold text-white/30">:</span>
+                      <span className="text-xl sm:text-2xl font-bold text-white/30">:</span>
                     </>
                   )}
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 min-w-[65px] sm:min-w-[80px] border border-white/15 shadow-lg">
-                    <span className="block text-2xl sm:text-3xl font-black text-white">{countdown.hours}</span>
-                    <span className="text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Horas</span>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-2.5 sm:p-4 min-w-[55px] sm:min-w-[80px] border border-white/15 shadow-lg">
+                    <span className="block text-xl sm:text-3xl font-black text-white">{countdown.hours}</span>
+                    <span className="text-[9px] sm:text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Horas</span>
                   </div>
-                  <span className="text-2xl font-bold text-white/30">:</span>
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 min-w-[65px] sm:min-w-[80px] border border-white/15 shadow-lg">
-                    <span className="block text-2xl sm:text-3xl font-black text-white">{countdown.minutes}</span>
-                    <span className="text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Min</span>
+                  <span className="text-xl sm:text-2xl font-bold text-white/30">:</span>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-2.5 sm:p-4 min-w-[55px] sm:min-w-[80px] border border-white/15 shadow-lg">
+                    <span className="block text-xl sm:text-3xl font-black text-white">{countdown.minutes}</span>
+                    <span className="text-[9px] sm:text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Min</span>
                   </div>
-                  <span className="text-2xl font-bold text-white/30">:</span>
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 min-w-[65px] sm:min-w-[80px] border border-white/15 shadow-lg">
-                    <span className="block text-2xl sm:text-3xl font-black text-cyan-400 animate-pulse">{countdown.seconds}</span>
-                    <span className="text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Seg</span>
+                  <span className="text-xl sm:text-2xl font-bold text-white/30">:</span>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-2.5 sm:p-4 min-w-[55px] sm:min-w-[80px] border border-white/15 shadow-lg">
+                    <span className="block text-xl sm:text-3xl font-black text-cyan-400 animate-pulse">{countdown.seconds}</span>
+                    <span className="text-[9px] sm:text-[10px] text-cyan-300 uppercase font-sans font-extrabold tracking-wider">Seg</span>
                   </div>
                 </div>
 
-                <div className="mt-5 flex items-center justify-center gap-1.5 text-neutral-400 text-[11px]">
+                <div className="mt-4 sm:mt-5 flex items-center justify-center gap-1.5 text-neutral-400 text-[10px] sm:text-[11px]">
                   <Lock className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Horário oficial verificado e sincronizado diretamente no servidor Vercel.</span>
                 </div>
@@ -1417,15 +1421,15 @@ export default function HomePage() {
 
       {/* ===== STEP: FILA DE ESPERA (ESTILO RESTAURANTE) ===== */}
       {step === "waiting_room" && student && (
-        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 sm:p-6 py-10 relative overflow-hidden">
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 sm:p-6 py-8 sm:py-12 relative overflow-hidden">
           {/* Efeitos de fundo suaves na paleta oficial Marista */}
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-marista-dark/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="w-full max-w-lg flex flex-col items-center z-10 animate-fade-in text-center">
-            {/* Logo oficial */}
-            <div className="mb-6">
-              <div className="w-[280px] sm:w-[320px] mx-auto relative">
+            {/* Logo oficial padronizado */}
+            <div className="mb-6 sm:mb-8 text-center">
+              <div className="w-[260px] sm:w-[320px] mx-auto relative">
                 <Image
                   src="/logo_1.png"
                   alt="Roda de Profissões Marista Glória"
@@ -1438,7 +1442,7 @@ export default function HomePage() {
             </div>
 
             {/* Card Principal da Fila de Espera */}
-            <div className="w-full bg-white border border-neutral-200 rounded-3xl shadow-2xl p-6 sm:p-9 animate-slide-up relative">
+            <div className="w-full bg-white border border-neutral-200 rounded-3xl shadow-xl sm:shadow-2xl p-5 sm:p-8 animate-slide-up relative">
               {/* Ícone de Destaque Animado */}
               <div className="w-20 h-20 rounded-3xl bg-amber-100 border-2 border-amber-300 flex items-center justify-center text-amber-600 shadow-inner mx-auto mb-5 relative">
                 <Users className="w-10 h-10 animate-pulse text-amber-600" />
@@ -1546,15 +1550,15 @@ export default function HomePage() {
 
       {/* ===== STEP 2: TELA DE CONFIRMAÇÃO / COMPROVANTE DE INSCRIÇÃO ===== */}
       {step === "confirmed" && student && (
-        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 sm:p-6 py-10 relative overflow-hidden print:bg-white print:p-0 print:py-0">
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 sm:p-6 py-8 sm:py-12 relative overflow-hidden print:bg-white print:p-0 print:py-0">
           {/* Efeitos de fundo suaves na paleta oficial Marista */}
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-marista-cyan/10 rounded-full blur-3xl pointer-events-none print:hidden" />
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-marista-dark/10 rounded-full blur-3xl pointer-events-none print:hidden" />
 
           <div className="w-full max-w-2xl flex flex-col items-center z-10 animate-fade-in">
             {/* Logo oficial idêntico à tela inicial */}
-            <div className="mb-6 text-center print:mb-3">
-              <div className="w-[280px] sm:w-[320px] mx-auto relative">
+            <div className="mb-6 sm:mb-8 text-center print:mb-3">
+              <div className="w-[260px] sm:w-[320px] mx-auto relative">
                 <Image
                   src="/logo_1.png"
                   alt="Roda de Profissões Marista Glória"
@@ -1567,23 +1571,23 @@ export default function HomePage() {
             </div>
 
             {/* Card Principal do Comprovante (design idêntico ao padrão da tela inicial) */}
-            <div className="w-full bg-white border border-neutral-200 rounded-3xl shadow-2xl p-6 sm:p-9 animate-slide-up relative print:border-none print:shadow-none print:p-2">
+            <div className="w-full bg-white border border-neutral-200 rounded-3xl shadow-xl sm:shadow-2xl p-5 sm:p-8 animate-slide-up relative print:border-none print:shadow-none print:p-2">
               {/* Cabeçalho do Card */}
-              <div className="flex items-center justify-between border-b border-neutral-100 pb-5 mb-6 flex-wrap gap-3">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shadow-sm flex-shrink-0">
-                    <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+              <div className="flex items-center justify-between border-b border-neutral-100 pb-4 sm:pb-5 mb-5 sm:mb-6 flex-wrap gap-3">
+                <div className="flex items-center gap-3 sm:gap-3.5">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shadow-sm flex-shrink-0">
+                    <CheckCircle2 className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="badge bg-emerald-700 text-white font-extrabold text-[10px] tracking-wider px-2.5 py-0.5 shadow-sm">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="badge bg-emerald-700 text-white font-extrabold text-[10px] tracking-wider px-2 py-0.5 shadow-sm">
                         Inscrição Confirmada & Bloqueada
                       </span>
                       <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                         Definitivo
                       </span>
                     </div>
-                    <h2 className="text-neutral-900 font-heading font-extrabold text-xl sm:text-2xl mt-0.5">
+                    <h2 className="text-neutral-900 font-heading font-extrabold text-lg sm:text-2xl mt-0.5">
                       Comprovante Oficial de Inscrição
                     </h2>
                     <p className="text-neutral-500 text-xs mt-0.5">
@@ -1603,33 +1607,36 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Dados de Identificação do Aluno */}
-              <div className="bg-neutral-50/90 border border-neutral-200/80 rounded-2xl p-4 sm:p-5 mb-6">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">
-                      Estudante
-                    </span>
-                    <span className="font-heading font-bold text-neutral-900 text-base sm:text-lg leading-tight block">
+              {/* Dados de Identificação do Aluno padronizados */}
+              <div className="bg-neutral-50/90 border border-neutral-200/80 rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 shadow-xs">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-marista-50 border border-marista-100 flex items-center justify-center text-marista-dark flex-shrink-0 shadow-xs">
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 text-marista-cyan" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] sm:text-xs font-black text-marista-cyan uppercase tracking-wider">
+                        Estudante
+                      </span>
+                      <span className="text-[10px] font-bold text-neutral-500 bg-neutral-200/60 px-2 py-0.5 rounded-full">
+                        Matrícula {student.id}
+                      </span>
+                    </div>
+                    <h3 className="font-heading font-extrabold text-neutral-900 text-base sm:text-lg truncate">
                       {student.name}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">
-                      Matrícula
-                    </span>
-                    <span className="font-mono font-black text-marista-dark text-base sm:text-lg block">
-                      {student.id}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">
-                      Série
-                    </span>
-                    <span className="font-bold text-neutral-800 text-base sm:text-lg block">
+                    </h3>
+                    <p className="text-neutral-500 text-xs font-semibold">
                       {student.grade || "Ensino Médio"}
-                    </span>
+                    </p>
                   </div>
+                </div>
+
+                <div className="w-full sm:w-auto text-left sm:text-right border-t sm:border-t-0 pt-2.5 sm:pt-0 border-neutral-200/70 flex sm:flex-col items-center sm:items-end justify-between sm:justify-center">
+                  <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">Status</span>
+                  <span className="text-xs font-black text-emerald-700 bg-emerald-100/80 border border-emerald-300 px-2.5 py-1 rounded-lg inline-flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    Garantida
+                  </span>
                 </div>
               </div>
 
@@ -1839,41 +1846,53 @@ export default function HomePage() {
 
       {/* ===== STEP 3: VISÃO GERAL DAS PALESTRAS EM BOX ===== */}
       {step === "lectures" && student && (
-        <div className="min-h-screen bg-neutral-50/60 pb-36">
-          {/* Header Superior */}
-          <header className="bg-marista-gradient sticky top-0 z-40 shadow-md">
-            <div className="max-w-7xl mx-auto px-4 py-3.5 sm:py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 sm:gap-4">
+        <div className="min-h-screen bg-neutral-50/60 pb-64 sm:pb-44">
+          {/* Header Superior Coeso com Identidade Visual Marista */}
+          <header className="bg-white border-b border-neutral-200 sticky top-0 z-40 shadow-sm">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3">
+              <div className="flex items-center justify-between gap-2">
+                {/* Lado Esquerdo: Botão Voltar + Logo Marista Oficial */}
+                <div className="flex items-center gap-2 sm:gap-4">
                   <button
                     onClick={handleBackFromLectures}
-                    className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center
-                               text-white/80 hover:bg-white/20 hover:text-white transition-all"
+                    className="p-2 sm:px-3 sm:py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs"
                     title="Voltar para Escolha de Dias"
                   >
-                    <ArrowLeft className="w-5 h-5" />
+                    <ArrowLeft className="w-4 h-4 text-marista-dark" />
+                    <span className="hidden sm:inline">Voltar</span>
                   </button>
-                  <div>
-                    <h1 className="text-white font-heading font-extrabold text-lg sm:text-xl leading-tight">
-                      {selectedEventDate === "2026-09-16"
-                        ? "Roda de Conversas – 16/09"
-                        : "Oficinas & Palestra Geral – 19/09"}
-                    </h1>
-                    <p className="text-cyan-200/80 text-xs sm:text-sm">
-                      Colégio Marista Glória
-                    </p>
+                  <div className="w-[130px] xs:w-[150px] sm:w-[190px] relative">
+                    <Image
+                      src="/logo_1.png"
+                      alt="Roda de Profissões Marista Glória"
+                      width={190}
+                      height={65}
+                      className="w-full h-auto object-contain"
+                      priority
+                    />
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="text-right hidden sm:block">
-                    <p className="text-white font-bold text-sm leading-snug">
+                {/* Centro/Direita: Identificação do Estudante */}
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <span className="hidden sm:inline-block text-[10px] font-bold uppercase tracking-wider text-marista-cyan">
+                        Estudante
+                      </span>
+                      <span className="text-[10px] font-bold text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded">
+                        #{student.id}
+                      </span>
+                    </div>
+                    <p className="text-neutral-900 font-extrabold text-xs sm:text-sm leading-tight truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[220px]">
                       {student.name}
                     </p>
-                    <p className="text-cyan-200/70 text-xs">{student.grade}</p>
+                    <p className="text-neutral-400 text-[10px] hidden xs:block">
+                      {student.grade || "Ensino Médio"}
+                    </p>
                   </div>
-                  <div className="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-inner">
-                    <User className="w-5 h-5 text-white" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-marista-50 border border-marista-100 flex items-center justify-center text-marista-dark flex-shrink-0 shadow-xs">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-marista-cyan" />
                   </div>
                 </div>
               </div>
@@ -2324,70 +2343,101 @@ export default function HomePage() {
             )}
           </div>
 
+          {/* Rodapé da Página idêntico a todas as telas */}
+          <div className="max-w-7xl mx-auto px-4 mt-12 mb-6 text-center space-y-2">
+            <p className="text-neutral-400 text-xs">
+              Colégio Marista Nossa Senhora da Glória — Sistema de Inscrições 2026
+            </p>
+            <div>
+              <Link
+                href="/admin/login"
+                className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-marista-primary font-medium transition-colors"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                Painel Administrativo / Coordenação
+              </Link>
+            </div>
+          </div>
+
           {/* ===== BARRA FLUTUANTE DE RESUMO E CONFIRMAÇÃO ===== */}
-          <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-neutral-200 shadow-2xl p-4 transition-all">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-neutral-200 shadow-2xl p-3 sm:p-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-all">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 sm:gap-4">
               {/* Resumo das escolhas */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm ${(selectedEventDate === "2026-09-16" ? selectedRooms.length === 2 : selectedRooms.length === 1)
-                      ? "bg-emerald-500 text-white shadow-md"
-                      : selectedRooms.length === 1 && selectedEventDate === "2026-09-16"
-                        ? "bg-amber-500 text-white shadow-md"
-                        : "bg-neutral-200 text-neutral-600"
-                      }`}
-                  >
-                    {selectedRooms.length}/{selectedEventDate === "2026-09-16" ? 2 : 1}
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-neutral-800">
-                      {isLocked
-                        ? "Inscrição Concluída e Bloqueada!"
-                        : selectedEventDate === "2026-09-19"
-                          ? (selectedRooms.length === 1 ? "Atividade Selecionada!" : "Selecione 1 Atividade")
-                          : selectedRooms.length === 2
-                            ? "2 Palestras Selecionadas!"
-                            : selectedRooms.length === 1
-                              ? "Selecione mais 1 palestra"
-                              : "Nenhuma palestra selecionada"}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center font-black text-xs sm:text-sm flex-shrink-0 ${(selectedEventDate === "2026-09-16" ? selectedRooms.length === 2 : selectedRooms.length === 1)
+                        ? "bg-emerald-500 text-white shadow-md"
+                        : selectedRooms.length === 1 && selectedEventDate === "2026-09-16"
+                          ? "bg-amber-500 text-white shadow-md"
+                          : "bg-neutral-200 text-neutral-600"
+                        }`}
+                    >
+                      {selectedRooms.length}/{selectedEventDate === "2026-09-16" ? 2 : 1}
                     </div>
-                    <div className="text-[11px] text-neutral-500">
-                      {isLocked
-                        ? "Horários e salas definidos e confirmados oficialmente"
-                        : selectedEventDate === "2026-09-19"
-                          ? (selectedRooms.length === 1 ? "Pronto para confirmar sua inscrição" : "Clique em uma atividade acima para escolher")
-                          : selectedRooms.length === 2
-                            ? "Pronto para confirmar sua inscrição"
-                            : "Clique nas caixas acima para escolher"}
+                    <div>
+                      <div className="text-xs font-bold text-neutral-800 leading-tight">
+                        {isLocked
+                          ? "Inscrição Concluída e Bloqueada!"
+                          : selectedEventDate === "2026-09-19"
+                            ? (selectedRooms.length === 1 ? "Atividade Selecionada!" : "Selecione 1 Atividade")
+                            : selectedRooms.length === 2
+                              ? "2 Palestras Selecionadas!"
+                              : selectedRooms.length === 1
+                                ? "Selecione mais 1 palestra"
+                                : "Nenhuma palestra selecionada"}
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] text-neutral-500 leading-tight">
+                        {isLocked
+                          ? "Horários e salas confirmados oficialmente"
+                          : selectedEventDate === "2026-09-19"
+                            ? (selectedRooms.length === 1 ? "Pronto para confirmar sua inscrição" : "Clique em uma atividade acima para escolher")
+                            : selectedRooms.length === 2
+                              ? "Pronto para confirmar sua inscrição"
+                              : "Clique nas caixas acima para escolher"}
+                      </div>
                     </div>
                   </div>
+
+                  {/* No mobile, botão de inverter horários se couber */}
+                  {selectedEventDate === "2026-09-16" && selectedRooms.length === 2 && !isLocked && (
+                    <button
+                      onClick={handleSwapSlots}
+                      type="button"
+                      className="md:hidden px-2.5 py-1.5 rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100 font-bold text-[11px] flex items-center gap-1 transition-all shadow-xs flex-shrink-0"
+                      title="Inverter 11h e 12h"
+                    >
+                      <ArrowLeftRight className="w-3.5 h-3.5 text-marista-cyan" />
+                      <span>Inverter</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Badges das salas selecionadas */}
                 {selectedRooms.length > 0 && (
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs">
                     {selectedEventDate === "2026-09-19" ? (
                       selectedRoom1Data && (
-                        <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 font-bold shadow-sm">
-                          <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>
-                            {selectedRoom1Data.lectureSingle?.timeSlot ? selectedRoom1Data.lectureSingle.timeSlot.replace(":", "h").replace(":", "h").replace("-", "às") : "Sábado"}: {selectedRoom1Data.title} ({selectedRoom1Data.location || `Sala ${selectedRoom1Data.roomNumber}`})
+                        <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 px-2.5 py-1 rounded-lg sm:rounded-xl text-[11px] sm:text-xs flex items-center gap-1.5 font-bold shadow-xs">
+                          <Clock className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                          <span className="truncate max-w-[260px] sm:max-w-none">
+                            {selectedRoom1Data.title} ({selectedRoom1Data.location || `Sala ${selectedRoom1Data.roomNumber}`})
                           </span>
                         </div>
                       )
                     ) : (
                       <>
                         {selectedRoom1Data && (
-                          <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 font-bold shadow-sm">
-                            <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>11h: Sala {selectedRoom1Data.roomNumber} ({selectedRoom1Data.title.split("–")[0].trim()})</span>
+                          <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 px-2 py-1 rounded-lg sm:rounded-xl text-[11px] sm:text-xs flex items-center gap-1 font-bold shadow-xs">
+                            <Clock className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                            <span>11h: Sala {selectedRoom1Data.roomNumber}</span>
                           </div>
                         )}
                         {selectedRoom2Data && (
-                          <div className="bg-indigo-50 border border-indigo-300 text-indigo-900 px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 font-bold shadow-sm">
-                            <Clock className="w-3.5 h-3.5 text-indigo-600" />
-                            <span>12h: Sala {selectedRoom2Data.roomNumber} ({selectedRoom2Data.title.split("–")[0].trim()})</span>
+                          <div className="bg-indigo-50 border border-indigo-300 text-indigo-900 px-2 py-1 rounded-lg sm:rounded-xl text-[11px] sm:text-xs flex items-center gap-1 font-bold shadow-xs">
+                            <Clock className="w-3 h-3 text-indigo-600 flex-shrink-0" />
+                            <span>12h: Sala {selectedRoom2Data.roomNumber}</span>
                           </div>
                         )}
                       </>
@@ -2397,13 +2447,13 @@ export default function HomePage() {
               </div>
 
               {/* Botões de Ação */}
-              <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                {/* Botão de Inverter Horários */}
+              <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-end">
+                {/* Botão de Inverter Horários (Desktop) */}
                 {selectedEventDate === "2026-09-16" && selectedRooms.length === 2 && !isLocked && (
                   <button
                     onClick={handleSwapSlots}
                     type="button"
-                    className="px-3.5 py-2.5 rounded-xl border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100 font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                    className="hidden md:flex px-3.5 py-2.5 rounded-xl border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100 font-bold text-xs items-center gap-1.5 transition-all shadow-sm"
                     title="Inverter qual sala assistir às 11h e qual às 12h"
                   >
                     <ArrowLeftRight className="w-4 h-4 text-marista-cyan" />
@@ -2413,25 +2463,25 @@ export default function HomePage() {
 
                 {/* Status quando já confirmado (Bloqueado) */}
                 {isLocked ? (
-                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                  <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
                     <button
                       onClick={() => setStep("confirmed")}
-                      className="px-4 py-2.5 rounded-xl bg-marista-dark hover:bg-marista-cyan text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+                      className="flex-1 md:flex-initial px-4 py-2.5 rounded-xl bg-marista-dark hover:bg-marista-cyan text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
                     >
                       <FileText className="w-4 h-4" />
                       <span>Ver Comprovante</span>
                     </button>
-                    <div className="px-3.5 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-2 shadow-sm">
-                      <Lock className="w-4 h-4" />
-                      <span>Inscrição Bloqueada</span>
+                    <div className="px-3 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Bloqueada</span>
                     </div>
                     <button
                       onClick={handleBack}
-                      className="px-3.5 py-2.5 rounded-xl border border-neutral-300 text-neutral-600 hover:bg-neutral-100 font-semibold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                      className="px-3 py-2.5 rounded-xl border border-neutral-300 text-neutral-600 hover:bg-neutral-100 font-semibold text-xs flex items-center justify-center gap-1 transition-all shadow-sm"
                       title="Encerrar sessão"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      <span>Sair</span>
+                      <span className="hidden xs:inline">Sair</span>
                     </button>
                   </div>
                 ) : (
@@ -2443,7 +2493,7 @@ export default function HomePage() {
                       submitting ||
                       !registrationOpen
                     }
-                    className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200
+                    className="w-full md:w-auto px-5 sm:px-6 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200
                                bg-marista-primary text-white hover:bg-marista-light hover:shadow-lg
                                disabled:opacity-40 disabled:cursor-not-allowed
                                flex items-center justify-center gap-2 shadow-md"
@@ -2472,7 +2522,7 @@ export default function HomePage() {
                       </>
                     ) : (
                       <>
-                        <span>Selecione 2 Palestras</span>
+                        <span>Selecione 2 Palestras ({selectedRooms.length}/2)</span>
                         <ChevronRight className="w-4 h-4" />
                       </>
                     )}
