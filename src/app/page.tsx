@@ -833,10 +833,10 @@ export default function HomePage() {
 
           <div className="w-full max-w-md flex flex-col items-center z-10 animate-fade-in">
             {/* Destaque Único: Criado e Desenvolvido por Giovanna Akemi Saito */}
-            <div className="text-center mb-3 sm:mb-4 select-none">
+            <div className="text-center mb-3 sm:mb-4 select-none px-2">
               <p className="text-xs sm:text-sm font-semibold text-neutral-500 tracking-wide">
                 Criado e Desenvolvido por{" "}
-                <span className="font-heading font-black text-marista-dark text-sm sm:text-base">
+                <span className="font-heading font-black text-marista-dark text-sm sm:text-base whitespace-nowrap">
                   Giovanna Akemi Saito
                 </span>
               </p>
@@ -1002,10 +1002,10 @@ export default function HomePage() {
 
           <div className="w-full max-w-4xl flex flex-col items-center z-10 animate-fade-in">
             {/* Destaque Único: Criado e Desenvolvido por Giovanna Akemi Saito */}
-            <div className="text-center mb-3 sm:mb-4 select-none">
+            <div className="text-center mb-3 sm:mb-4 select-none px-2">
               <p className="text-xs sm:text-sm font-semibold text-neutral-500 tracking-wide">
                 Criado e Desenvolvido por{" "}
-                <span className="font-heading font-black text-marista-dark text-sm sm:text-base">
+                <span className="font-heading font-black text-marista-dark text-sm sm:text-base whitespace-nowrap">
                   Giovanna Akemi Saito
                 </span>
               </p>
