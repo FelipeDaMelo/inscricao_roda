@@ -17,16 +17,31 @@ export async function GET() {
     const releaseDate = rawData.releaseDate || OFFICIAL_RELEASE_DATE_ISO;
     const releaseTimestamp = new Date(releaseDate).getTime() || OFFICIAL_RELEASE_TIMESTAMP;
     const serverNow = Date.now();
-    const isReleased = isRegistrationOfficiallyReleased({
-      releaseDate,
-      forceOpen: rawData.forceOpen,
-      registrationOpen: rawData.registrationOpen,
-    });
+    const autoTimeReached = serverNow >= releaseTimestamp;
 
-    // A partir das 17h do dia 11/09, as inscrições de AMBOS os dias ficam liberadas
-    // Antes das 17h, as inscrições ficam bloqueadas
-    const day16Open = isReleased && rawData.day16Open !== false;
-    const day19Open = isReleased && rawData.day19Open !== false;
+    // As inscrições estão liberadas se:
+    // 1) O admin configurou registrationOpen: true ou forceOpen: true
+    // 2) OU se o horário programado de abertura automática foi atingido (e registrationOpen !== false)
+    const isReleased =
+      rawData.forceOpen === true ||
+      rawData.registrationOpen === true ||
+      (autoTimeReached && rawData.registrationOpen !== false);
+
+    // Status dos dias respeita a escolha do admin se definida, ou segue isReleased
+    const day16Open =
+      rawData.day16Open !== undefined
+        ? rawData.day16Open === true
+        : isReleased;
+
+    const day19Open =
+      rawData.day19Open !== undefined
+        ? rawData.day19Open === true
+        : isReleased;
+
+    const registrationOpen =
+      rawData.registrationOpen !== undefined
+        ? rawData.registrationOpen === true
+        : isReleased;
 
     return NextResponse.json({
       success: true,
@@ -40,7 +55,7 @@ export async function GET() {
         serverTime: new Date().toISOString(),
         serverTimestamp: serverNow,
         isReleased,
-        registrationOpen: isReleased && rawData.registrationOpen !== false,
+        registrationOpen,
         day16Open,
         day19Open,
       },

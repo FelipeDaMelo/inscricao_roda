@@ -1,17 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Settings, Power, Calendar, Save, ShieldCheck, Loader2, Clock } from "lucide-react";
+import { Settings, Power, Calendar, Save, ShieldCheck, Loader2, Clock, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
+
+interface EventSettingsState {
+  eventName: string;
+  eventDate: string;
+  registrationOpen: boolean;
+  maxLecturesPerStudent: number;
+  day16Open?: boolean;
+  day19Open?: boolean;
+  forceOpen?: boolean;
+  isReleased?: boolean;
+  releaseDate?: string;
+  releaseTimestamp?: number;
+  serverTime?: string;
+  [key: string]: any;
+}
 
 export default function SettingsAdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<EventSettingsState>({
     eventName: "Roda de Profissões 2026",
     eventDate: "2026-09-15",
     registrationOpen: true,
     maxLecturesPerStudent: 0,
+    day16Open: true,
+    day19Open: true,
+    forceOpen: true,
   });
 
   const fetchSettings = async () => {
@@ -33,19 +51,18 @@ export default function SettingsAdminPage() {
     fetchSettings();
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const saveSettingsToServer = async (newSettings: typeof settings) => {
     setSaving(true);
     try {
       const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(newSettings),
       });
 
       const data = await res.json();
       if (data.success) {
-        toast.success("Configurações salvas com sucesso!");
+        toast.success("Configurações salvas e aplicadas com sucesso!");
       } else {
         toast.error(data.error || "Erro ao salvar");
       }
@@ -54,6 +71,17 @@ export default function SettingsAdminPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleQuickToggle = async (patch: Partial<typeof settings>) => {
+    const updated = { ...settings, ...patch };
+    setSettings(updated);
+    await saveSettingsToServer(updated);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await saveSettingsToServer(settings);
   };
 
   return (
@@ -75,6 +103,35 @@ export default function SettingsAdminPage() {
         </div>
       ) : (
         <form onSubmit={handleSave} className="space-y-6">
+          {/* Banner de Ação Rápida: Liberar Todo o Sistema */}
+          <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 rounded-2xl p-5 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-emerald-400/30">
+            <div>
+              <h3 className="font-heading font-black text-lg flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-300" />
+                Liberar Todo o Sistema Agora
+              </h3>
+              <p className="text-emerald-100 text-xs mt-0.5 max-w-xl">
+                Abre as inscrições imediatamente e libera <b>Quarta-feira (16/09)</b> e <b>Sábado (19/09)</b> para todos os alunos de uma só vez, sem bloqueios de data.
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() =>
+                handleQuickToggle({
+                  registrationOpen: true,
+                  day16Open: true,
+                  day19Open: true,
+                  forceOpen: true,
+                })
+              }
+              className="py-3 px-6 rounded-xl font-extrabold text-sm bg-white text-emerald-900 hover:bg-emerald-50 hover:shadow-2xl transition-all flex items-center gap-2 flex-shrink-0 shadow-md disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Power className="w-4 h-4 text-emerald-600" />}
+              Liberar Tudo Agora
+            </button>
+          </div>
+
           {/* Card Status das Inscrições */}
           <div
             className={`p-6 rounded-2xl border-2 transition-all shadow-sm ${
@@ -96,7 +153,7 @@ export default function SettingsAdminPage() {
                 </div>
                 <div>
                   <h3 className="font-heading font-bold text-lg text-neutral-800">
-                    Status das Inscrições:{" "}
+                    Status Geral das Inscrições:{" "}
                     <span
                       className={
                         settings.registrationOpen ? "text-emerald-700" : "text-amber-700"
@@ -115,11 +172,12 @@ export default function SettingsAdminPage() {
 
               <button
                 type="button"
+                disabled={saving}
                 onClick={() =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    registrationOpen: !prev.registrationOpen,
-                  }))
+                  handleQuickToggle({
+                    registrationOpen: !settings.registrationOpen,
+                    forceOpen: !settings.registrationOpen,
+                  })
                 }
                 className={`py-3 px-6 rounded-xl font-bold text-sm transition-all shadow-md ${
                   settings.registrationOpen
@@ -182,11 +240,11 @@ export default function SettingsAdminPage() {
               </div>
               <button
                 type="button"
+                disabled={saving}
                 onClick={() =>
-                  setSettings((prev: any) => ({
-                    ...prev,
-                    forceOpen: !prev.forceOpen,
-                  }))
+                  handleQuickToggle({
+                    forceOpen: !(settings as any).forceOpen,
+                  })
                 }
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
                   (settings as any).forceOpen
@@ -227,11 +285,11 @@ export default function SettingsAdminPage() {
                 </div>
                 <button
                   type="button"
+                  disabled={saving}
                   onClick={() =>
-                    setSettings((prev: any) => ({
-                      ...prev,
-                      day16Open: prev.day16Open === false ? true : false,
-                    }))
+                    handleQuickToggle({
+                      day16Open: (settings as any).day16Open === false ? true : false,
+                    })
                   }
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     (settings as any).day16Open !== false
@@ -260,11 +318,11 @@ export default function SettingsAdminPage() {
                 </div>
                 <button
                   type="button"
+                  disabled={saving}
                   onClick={() =>
-                    setSettings((prev: any) => ({
-                      ...prev,
-                      day19Open: !prev.day19Open,
-                    }))
+                    handleQuickToggle({
+                      day19Open: !(settings as any).day19Open,
+                    })
                   }
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     (settings as any).day19Open === true

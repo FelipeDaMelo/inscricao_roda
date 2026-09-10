@@ -15,6 +15,7 @@ import {
   XCircle,
   Loader2,
   X,
+  RotateCcw,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -135,6 +136,31 @@ export default function LecturesAdminPage() {
     }
   };
 
+  const [resetting, setResetting] = useState(false);
+
+  const handleResetAllEnrollments = async () => {
+    const confirmed = window.confirm(
+      "Atenção: Tem certeza que deseja zerar os inscritos de todas as palestras e liberar 100% das vagas para novas inscrições?"
+    );
+    if (!confirmed) return;
+
+    setResetting(true);
+    try {
+      const res = await fetch("/api/admin/reset-enrollments", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(data.message || "Todas as vagas foram liberadas com sucesso!");
+        await fetchLectures();
+      } else {
+        toast.error(data.error || "Erro ao zerar vagas");
+      }
+    } catch {
+      toast.error("Erro ao comunicar com o servidor");
+    } finally {
+      setResetting(false);
+    }
+  };
+
   const filteredLectures = lectures.filter(
     (l) =>
       l.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -154,13 +180,28 @@ export default function LecturesAdminPage() {
             Cadastre os horários, palestrantes, salas e limites de vagas das palestras.
           </p>
         </div>
-        <button
-          onClick={handleOpenCreate}
-          className="btn-primary py-3 px-5 text-sm flex items-center gap-2 self-start sm:self-auto shadow-lg"
-        >
-          <Plus className="w-5 h-5" />
-          Nova Palestra
-        </button>
+        <div className="flex items-center gap-3 self-start sm:self-auto flex-wrap">
+          <button
+            onClick={handleResetAllEnrollments}
+            disabled={resetting}
+            className="py-3 px-5 text-sm font-bold rounded-xl border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
+            title="Zera o contador de todas as palestras e libera 100% das vagas"
+          >
+            {resetting ? (
+              <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
+            ) : (
+              <RotateCcw className="w-4 h-4 text-rose-600" />
+            )}
+            Liberar Todas as Vagas (Zerar)
+          </button>
+          <button
+            onClick={handleOpenCreate}
+            className="btn-primary py-3 px-5 text-sm flex items-center gap-2 shadow-lg"
+          >
+            <Plus className="w-5 h-5" />
+            Nova Palestra
+          </button>
+        </div>
       </div>
 
       {/* Toolbar / Search */}

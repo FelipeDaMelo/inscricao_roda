@@ -42,6 +42,7 @@ import {
 } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import DeveloperFooter from "@/components/DeveloperFooter";
 
 type Step = "matricula" | "select_day" | "waiting_room" | "lectures" | "confirmed";
 
@@ -92,9 +93,9 @@ export default function HomePage() {
     serverTime?: string;
     serverOffset?: number;
   }>({
-    day16Open: false,
-    day19Open: false,
-    isReleased: false,
+    day16Open: true,
+    day19Open: true,
+    isReleased: true,
     releaseDate: "2026-09-11T17:00:00-03:00",
     releaseTimestamp: new Date("2026-09-11T17:00:00-03:00").getTime(),
     serverOffset: 0,
@@ -324,6 +325,13 @@ export default function HomePage() {
         if (lecturesData.success) {
           setLectures(lecturesData.data);
         }
+        await fetchSettings();
+        setEventSettings((prev) => ({
+          ...prev,
+          day16Open: true,
+          day19Open: true,
+          isReleased: true,
+        }));
       } catch (err) {
         console.error("Erro ao carregar lista de palestras:", err);
       }
@@ -375,21 +383,15 @@ export default function HomePage() {
   const handleAccessDay = async (date: "2026-09-16" | "2026-09-19") => {
     if (!student) return;
 
-    // Se ainda não liberado no relógio do servidor Vercel
-    if (!eventSettings.isReleased && student.id !== "19042011") {
-      toast.error(
-        "As inscrições só serão liberadas nesta sexta-feira (11/09) às 17h00 (horário oficial do servidor)."
-      );
+    const isMaster = student.id === "19042011";
+
+    if (date === "2026-09-16" && !eventSettings.day16Open && !isMaster) {
+      toast.error("As inscrições para a Roda de Conversas (16/09) não estão abertas no momento.");
       return;
     }
 
-    if (date === "2026-09-16" && !eventSettings.day16Open) {
-      toast.error("As inscrições para a Roda de Conversas (16/09) não estão disponíveis no momento.");
-      return;
-    }
-
-    if (date === "2026-09-19" && !eventSettings.day19Open) {
-      toast.error("As inscrições para as Oficinas de Sábado (19/09) não estão disponíveis no momento.");
+    if (date === "2026-09-19" && !eventSettings.day19Open && !isMaster) {
+      toast.error("As inscrições para as Oficinas & Palestra Geral (19/09) não estão abertas no momento.");
       return;
     }
 
@@ -830,6 +832,16 @@ export default function HomePage() {
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-marista-dark/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="w-full max-w-md flex flex-col items-center z-10 animate-fade-in">
+            {/* Destaque Único: Criado e Desenvolvido por Giovanna Akemi Saito */}
+            <div className="text-center mb-3 sm:mb-4 select-none">
+              <p className="text-xs sm:text-sm font-semibold text-neutral-500 tracking-wide">
+                Criado e Desenvolvido por{" "}
+                <span className="font-heading font-black text-marista-dark text-sm sm:text-base">
+                  Giovanna Akemi Saito
+                </span>
+              </p>
+            </div>
+
             {/* Logo oficial padronizado */}
             <div className="mb-6 sm:mb-8 text-center">
               <div className="w-[260px] sm:w-[320px] mx-auto relative">
@@ -976,20 +988,7 @@ export default function HomePage() {
             </div>
 
             {/* Rodapé */}
-            <div className="mt-8 text-center space-y-2">
-              <p className="text-neutral-400 text-xs">
-                Colégio Marista Nossa Senhora da Glória — Sistema de Inscrições 2026
-              </p>
-              <div>
-                <Link
-                  href="/admin/login"
-                  className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-marista-primary font-medium transition-colors"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  Painel Administrativo / Coordenação
-                </Link>
-              </div>
-            </div>
+            <DeveloperFooter className="mt-8" />
           </div>
         </div>
       )}
@@ -1002,6 +1001,16 @@ export default function HomePage() {
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-marista-dark/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="w-full max-w-4xl flex flex-col items-center z-10 animate-fade-in">
+            {/* Destaque Único: Criado e Desenvolvido por Giovanna Akemi Saito */}
+            <div className="text-center mb-3 sm:mb-4 select-none">
+              <p className="text-xs sm:text-sm font-semibold text-neutral-500 tracking-wide">
+                Criado e Desenvolvido por{" "}
+                <span className="font-heading font-black text-marista-dark text-sm sm:text-base">
+                  Giovanna Akemi Saito
+                </span>
+              </p>
+            </div>
+
             {/* Logo oficial idêntico à tela inicial */}
             <div className="mb-6 sm:mb-8 text-center">
               <div className="w-[260px] sm:w-[320px] mx-auto relative">
@@ -1401,20 +1410,7 @@ export default function HomePage() {
             </div>
 
             {/* Rodapé */}
-            <div className="text-center space-y-2">
-              <p className="text-neutral-400 text-xs">
-                Colégio Marista Nossa Senhora da Glória — Sistema de Inscrições 2026
-              </p>
-              <div>
-                <Link
-                  href="/admin/login"
-                  className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-marista-primary font-medium transition-colors"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  Painel Administrativo / Coordenação
-                </Link>
-              </div>
-            </div>
+            <DeveloperFooter className="mt-8" />
           </div>
         </div>
       )}
@@ -1539,11 +1535,7 @@ export default function HomePage() {
             </div>
 
             {/* Rodapé */}
-            <div className="mt-8 text-center space-y-2">
-              <p className="text-neutral-400 text-xs">
-                Colégio Marista Nossa Senhora da Glória — Sistema de Inscrições 2026
-              </p>
-            </div>
+            <DeveloperFooter className="mt-8" showAdminLink={false} />
           </div>
         </div>
       )}
@@ -1825,21 +1817,8 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Rodapé da Página idêntico à tela inicial */}
-            <div className="mt-8 text-center space-y-2 print:hidden">
-              <p className="text-neutral-400 text-xs">
-                Colégio Marista Nossa Senhora da Glória — Sistema de Inscrições 2026
-              </p>
-              <div>
-                <Link
-                  href="/admin/login"
-                  className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-marista-primary font-medium transition-colors"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  Painel Administrativo / Coordenação
-                </Link>
-              </div>
-            </div>
+            {/* Rodapé da Página */}
+            <DeveloperFooter className="mt-8 print:hidden" />
           </div>
         </div>
       )}
@@ -2343,21 +2322,8 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Rodapé da Página idêntico a todas as telas */}
-          <div className="max-w-7xl mx-auto px-4 mt-12 mb-6 text-center space-y-2">
-            <p className="text-neutral-400 text-xs">
-              Colégio Marista Nossa Senhora da Glória — Sistema de Inscrições 2026
-            </p>
-            <div>
-              <Link
-                href="/admin/login"
-                className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-marista-primary font-medium transition-colors"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                Painel Administrativo / Coordenação
-              </Link>
-            </div>
-          </div>
+          {/* Rodapé da Página */}
+          <DeveloperFooter className="max-w-7xl mx-auto px-4 mt-12 mb-28" />
 
           {/* ===== BARRA FLUTUANTE DE RESUMO E CONFIRMAÇÃO ===== */}
           <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-neutral-200 shadow-2xl p-3 sm:p-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-all">
