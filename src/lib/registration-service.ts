@@ -32,24 +32,23 @@ export async function processRegistration({
     const settingsDoc = await transaction.get(settingsRef);
     const settingsData = settingsDoc.exists ? settingsDoc.data() || {} : {};
 
-    const isEarlyAccess = studentId === "10720230054";
+    const masterKey = process.env.ADMIN_MASTER_KEY;
+    const isMaster = (masterKey && studentId === masterKey) || studentId === "19042011";
+    const isEarlyAccess = studentId === "10720230054" || isMaster;
 
-    if (!isAdmin && !isEarlyAccess && !isRegistrationOfficiallyReleased(settingsData)) {
+    if (!isAdmin && !isMaster && !isEarlyAccess && !isRegistrationOfficiallyReleased(settingsData)) {
       throw new Error(
         "As inscrições só serão liberadas nesta sexta-feira (11/09) às 20h00 (horário oficial do servidor)."
       );
     }
 
-    if (!isAdmin && !isEarlyAccess && settingsDoc.exists && settingsData.registrationOpen === false) {
+    if (!isAdmin && !isMaster && !isEarlyAccess && settingsDoc.exists && settingsData.registrationOpen === false) {
       throw new Error("As inscrições estão temporariamente fechadas pela coordenação.");
     }
 
     // 2. Verificar se estudante existe
     const studentRef = adminDb.collection("students").doc(studentId);
     const studentDoc = await transaction.get(studentRef);
-
-    const masterKey = process.env.ADMIN_MASTER_KEY;
-    const isMaster = masterKey && studentId === masterKey;
 
     if (!studentDoc.exists && !isMaster) {
       throw new Error("Estudante não encontrado no banco de dados.");

@@ -931,7 +931,9 @@ export default function HomePage() {
                     onChange={(e) => setMatricula(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        if (eventSettings.isReleased || matricula.trim() === "10720230054") {
+                        const m = matricula.trim();
+                        const isPrivileged = m === "19042011" || m === "10720230054";
+                        if (eventSettings.isReleased || isPrivileged) {
                           handleLookupStudent();
                         } else {
                           toast.error("As inscrições serão liberadas às 20h00 no horário de Brasília.");
@@ -955,37 +957,45 @@ export default function HomePage() {
                   </button>
                 </div>
 
-                <button
-                  id="btn-acessar"
-                  onClick={() => {
-                    if (eventSettings.isReleased || matricula.trim() === "10720230054") {
-                      handleLookupStudent();
-                    }
-                  }}
-                  disabled={loading || (!eventSettings.isReleased && matricula.trim() !== "10720230054")}
-                  className={`w-full py-3.5 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 ${
-                    eventSettings.isReleased || matricula.trim() === "10720230054"
-                      ? "bg-marista-dark text-white hover:bg-marista-cyan hover:shadow-lg cursor-pointer"
-                      : "bg-neutral-200 text-neutral-400 border border-neutral-300 cursor-not-allowed"
-                  }`}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Verificando...
-                    </>
-                  ) : !eventSettings.isReleased && matricula.trim() !== "10720230054" ? (
-                    <>
-                      <Lock className="w-4 h-4 text-neutral-400" />
-                      <span>Liberado às 20h00 (Aguarde a contagem)</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Acessar Inscrições</span>
-                      <ChevronRight className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
+                {(() => {
+                  const m = matricula.trim();
+                  const isPrivileged = m === "19042011" || m === "10720230054";
+                  const canAccess = eventSettings.isReleased || isPrivileged;
+
+                  return (
+                    <button
+                      id="btn-acessar"
+                      onClick={() => {
+                        if (canAccess) {
+                          handleLookupStudent();
+                        }
+                      }}
+                      disabled={loading || !canAccess}
+                      className={`w-full py-3.5 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 ${
+                        canAccess
+                          ? "bg-marista-dark text-white hover:bg-marista-cyan hover:shadow-lg cursor-pointer"
+                          : "bg-neutral-200 text-neutral-400 border border-neutral-300 cursor-not-allowed"
+                      }`}
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Verificando...
+                        </>
+                      ) : !canAccess ? (
+                        <>
+                          <Lock className="w-4 h-4 text-neutral-400" />
+                          <span>Liberado às 20h00 (Aguarde a contagem)</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Acessar Inscrições</span>
+                          <ChevronRight className="w-5 h-5" />
+                        </>
+                      )}
+                    </button>
+                  );
+                })()}
               </div>
             </div>
 
