@@ -41,16 +41,21 @@ export async function GET() {
     const doc = await adminDb.collection("settings").doc("event").get();
     const rawData = doc.exists ? doc.data() || {} : {};
 
-    const releaseDate = rawData.releaseDate || OFFICIAL_RELEASE_DATE_ISO;
+    // A data e horário oficial de abertura é 20h (OFFICIAL_RELEASE_DATE_ISO)
+    // Se no Firestore ainda estiver a antiga 17h, padronizamos para a oficial 20h
+    const rawRelease = rawData.releaseDate;
+    const releaseDate =
+      !rawRelease || rawRelease.includes("17:00:00")
+        ? OFFICIAL_RELEASE_DATE_ISO
+        : rawRelease;
     const releaseTimestamp = new Date(releaseDate).getTime() || OFFICIAL_RELEASE_TIMESTAMP;
     const autoTimeReached = serverNow >= releaseTimestamp;
 
     // As inscrições estão liberadas se:
-    // 1) O admin configurou registrationOpen: true ou forceOpen: true
+    // 1) O admin configurou forceOpen: true
     // 2) OU se o horário programado de abertura automática foi atingido (e registrationOpen !== false)
     const isReleased =
       rawData.forceOpen === true ||
-      rawData.registrationOpen === true ||
       (autoTimeReached && rawData.registrationOpen !== false);
 
     // Status dos dias respeita a escolha do admin se definida, ou segue isReleased
