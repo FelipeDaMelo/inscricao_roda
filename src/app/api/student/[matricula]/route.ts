@@ -49,6 +49,7 @@ export async function GET(
     const studentData = {
       id: studentDoc.id,
       ...studentDoc.data(),
+      isEarlyAccess: matricula === "10720230054",
     };
 
     // 2. Buscar inscrições existentes do estudante

@@ -71,6 +71,47 @@ interface RoomCardData {
 }
 
 export default function HomePage() {
+  return (
+    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4 sm:p-6 select-none relative overflow-hidden">
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl text-center z-10 backdrop-blur-md">
+        <div className="w-20 h-20 bg-amber-500/10 border border-amber-500/30 rounded-3xl flex items-center justify-center text-amber-400 mx-auto mb-6 shadow-inner">
+          <Lock className="w-10 h-10" />
+        </div>
+
+        <span className="inline-block px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
+          Sistema Temporariamente Indisponível
+        </span>
+
+        <h1 className="text-2xl sm:text-3xl font-heading font-black text-white mb-3">
+          Inscrições Fora do Ar
+        </h1>
+
+        <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
+          A plataforma de inscrições da <b>Roda de Profissões 2026</b> foi suspensa temporariamente para manutenção técnica preventiva e ajustes da equipe de coordenação.
+        </p>
+
+        <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 text-xs text-slate-400 text-left space-y-2">
+          <p className="font-semibold text-slate-200 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-cyan-400" />
+            <span>Previsão de Retorno</span>
+          </p>
+          <p className="leading-relaxed">
+            Fique atento aos comunicados oficiais da coordenação do colégio nos canais de avisos e e-mails institucionais.
+          </p>
+        </div>
+      </div>
+
+      <p className="text-xs text-slate-600 mt-8 z-10">
+        Colégio Marista Glória • Roda de Profissões 2026
+      </p>
+    </main>
+  );
+}
+
+function _OriginalPlatform() {
   const [step, setStep] = useState<Step>("matricula");
   const [matricula, setMatricula] = useState("");
   const [student, setStudent] = useState<Student | null>(null);

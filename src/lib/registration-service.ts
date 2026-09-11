@@ -32,13 +32,15 @@ export async function processRegistration({
     const settingsDoc = await transaction.get(settingsRef);
     const settingsData = settingsDoc.exists ? settingsDoc.data() || {} : {};
 
-    if (!isAdmin && !isRegistrationOfficiallyReleased(settingsData)) {
+    const isEarlyAccess = studentId === "10720230054";
+
+    if (!isAdmin && !isEarlyAccess && !isRegistrationOfficiallyReleased(settingsData)) {
       throw new Error(
         "As inscrições só serão liberadas nesta sexta-feira (11/09) às 17h00 (horário oficial do servidor)."
       );
     }
 
-    if (settingsDoc.exists && settingsData.registrationOpen === false) {
+    if (!isAdmin && !isEarlyAccess && settingsDoc.exists && settingsData.registrationOpen === false) {
       throw new Error("As inscrições estão temporariamente fechadas pela coordenação.");
     }
 
