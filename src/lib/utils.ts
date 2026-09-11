@@ -157,10 +157,10 @@ export function hasTimeConflict(
 }
 
 /**
- * Data e horário oficial de abertura: Sexta-feira, 11/09/2026 às 17:00:00 (Horário de Brasília)
+ * Data e horário oficial de abertura: Sexta-feira, 11/09/2026 às 20:00:00 (Horário de Brasília)
  * Offset UTC-3 garante exatidão de liberação no servidor da Vercel
  */
-export const OFFICIAL_RELEASE_DATE_ISO = "2026-09-11T17:00:00-03:00";
+export const OFFICIAL_RELEASE_DATE_ISO = "2026-09-11T20:00:00-03:00";
 export const OFFICIAL_RELEASE_TIMESTAMP = new Date(OFFICIAL_RELEASE_DATE_ISO).getTime();
 
 /**

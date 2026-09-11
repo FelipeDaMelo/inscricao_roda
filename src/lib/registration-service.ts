@@ -27,7 +27,7 @@ export async function processRegistration({
 
   // Executar via Firestore Transaction para garantir ACID, FIFO e integridade de vagas
   const result = await adminDb.runTransaction(async (transaction) => {
-    // 1. Verificar se inscrições estão abertas e liberadas (sexta-feira 11/09 às 17h, horário do servidor)
+    // 1. Verificar se inscrições estão abertas e liberadas (sexta-feira 11/09 às 20h, horário do servidor)
     const settingsRef = adminDb.collection("settings").doc("event");
     const settingsDoc = await transaction.get(settingsRef);
     const settingsData = settingsDoc.exists ? settingsDoc.data() || {} : {};
@@ -36,7 +36,7 @@ export async function processRegistration({
 
     if (!isAdmin && !isEarlyAccess && !isRegistrationOfficiallyReleased(settingsData)) {
       throw new Error(
-        "As inscrições só serão liberadas nesta sexta-feira (11/09) às 17h00 (horário oficial do servidor)."
+        "As inscrições só serão liberadas nesta sexta-feira (11/09) às 20h00 (horário oficial do servidor)."
       );
     }
 

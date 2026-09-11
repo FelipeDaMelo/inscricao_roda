@@ -190,7 +190,7 @@ export default function SettingsAdminPage() {
             </div>
           </div>
 
-          {/* Card Abertura Automática Programada (11/09 às 17h) */}
+          {/* Card Abertura Automática Programada (11/09 às 20h) */}
           <div className="bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-sm space-y-4">
             <h2 className="font-heading font-bold text-lg text-neutral-800 border-b border-neutral-100 pb-3 flex items-center justify-between">
               <span className="flex items-center gap-2">
@@ -206,7 +206,7 @@ export default function SettingsAdminPage() {
               >
                 {(settings as any).isReleased
                   ? "✓ Inscrições Oficialmente Liberadas"
-                  : "🔒 Bloqueado até 11/09 às 17h00"}
+                  : "🔒 Bloqueado até 11/09 às 20h00"}
               </span>
             </h2>
 
@@ -214,7 +214,7 @@ export default function SettingsAdminPage() {
               <div className="flex items-center justify-between">
                 <span className="text-neutral-500 font-semibold">Data e Horário Programados:</span>
                 <span className="font-bold text-neutral-800">
-                  Sexta-feira, 11/09/2026 às 17h00 (Horário de Brasília)
+                  Sexta-feira, 11/09/2026 às 20h00 (Horário de Brasília)
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -235,7 +235,7 @@ export default function SettingsAdminPage() {
                   Liberar Imediatamente para Testes (Override)
                 </p>
                 <p className="text-[11px] text-amber-800 mt-0.5">
-                  Ative esta opção apenas se desejar antecipar a liberação das inscrições antes das 17h do dia 11/09.
+                  Ative esta opção apenas se desejar antecipar a liberação das inscrições antes das 20h do dia 11/09.
                 </p>
               </div>
               <button

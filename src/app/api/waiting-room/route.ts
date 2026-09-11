@@ -221,8 +221,8 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error:
-            "As inscrições só serão liberadas nesta sexta-feira (11/09) às 17h00 (horário oficial do servidor).",
-          releaseDate: settingsData.releaseDate || "2026-09-11T17:00:00-03:00",
+            "As inscrições só serão liberadas nesta sexta-feira (11/09) às 20h00 (horário oficial do servidor).",
+          releaseDate: settingsData.releaseDate || "2026-09-11T20:00:00-03:00",
         },
         { status: 403 }
       );

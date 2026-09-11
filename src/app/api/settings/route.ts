@@ -9,15 +9,40 @@ import { verifyAdminRequest } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
+// Cache em memória de 10 segundos para evitar avalanche de leituras no Firestore
+let cachedSettingsData: any = null;
+let lastSettingsCacheTime = 0;
+const SETTINGS_CACHE_TTL_MS = 10000; // 10 segundos
+
 export async function GET() {
   try {
+    const serverNow = Date.now();
+
+    // Se temos dados em cache válidos nos últimos 10 segundos, devolvemos instantaneamente
+    if (cachedSettingsData && (serverNow - lastSettingsCacheTime < SETTINGS_CACHE_TTL_MS)) {
+      return NextResponse.json(
+        {
+          success: true,
+          data: {
+            ...cachedSettingsData,
+            serverTime: new Date().toISOString(),
+            serverTimestamp: serverNow,
+          },
+        },
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=10, stale-while-revalidate=20",
+          },
+        }
+      );
+    }
+
     const adminDb = getAdminDb();
     const doc = await adminDb.collection("settings").doc("event").get();
     const rawData = doc.exists ? doc.data() || {} : {};
 
     const releaseDate = rawData.releaseDate || OFFICIAL_RELEASE_DATE_ISO;
     const releaseTimestamp = new Date(releaseDate).getTime() || OFFICIAL_RELEASE_TIMESTAMP;
-    const serverNow = Date.now();
     const autoTimeReached = serverNow >= releaseTimestamp;
 
     // As inscrições estão liberadas se:
@@ -44,23 +69,38 @@ export async function GET() {
         ? rawData.registrationOpen === true
         : isReleased;
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        eventName: rawData.eventName || "Roda de Conversas & Oficinas 2026",
-        eventDate: rawData.eventDate || "2026-09-16",
-        maxLecturesPerStudent: rawData.maxLecturesPerStudent || 2,
-        ...rawData,
-        releaseDate,
-        releaseTimestamp,
-        serverTime: new Date().toISOString(),
-        serverTimestamp: serverNow,
-        isReleased,
-        registrationOpen,
-        day16Open,
-        day19Open,
+    const computedData = {
+      eventName: rawData.eventName || "Roda de Conversas & Oficinas 2026",
+      eventDate: rawData.eventDate || "2026-09-16",
+      maxLecturesPerStudent: rawData.maxLecturesPerStudent || 2,
+      ...rawData,
+      releaseDate,
+      releaseTimestamp,
+      isReleased,
+      registrationOpen,
+      day16Open,
+      day19Open,
+    };
+
+    // Atualiza cache em memória
+    cachedSettingsData = computedData;
+    lastSettingsCacheTime = serverNow;
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          ...computedData,
+          serverTime: new Date().toISOString(),
+          serverTimestamp: serverNow,
+        },
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=20",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("Erro ao buscar configurações:", error);
     return NextResponse.json(
@@ -80,6 +120,10 @@ export async function POST(request: NextRequest) {
     const adminDb = getAdminDb();
     const body = await request.json();
     await adminDb.collection("settings").doc("event").set(body, { merge: true });
+
+    // Invalida cache imediatamente após alteração pelo admin
+    cachedSettingsData = null;
+    lastSettingsCacheTime = 0;
 
     return NextResponse.json({
       success: true,

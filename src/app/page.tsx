@@ -71,47 +71,6 @@ interface RoomCardData {
 }
 
 export default function HomePage() {
-  return (
-    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4 sm:p-6 select-none relative overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="w-full max-w-lg bg-slate-900/90 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl text-center z-10 backdrop-blur-md">
-        <div className="w-20 h-20 bg-amber-500/10 border border-amber-500/30 rounded-3xl flex items-center justify-center text-amber-400 mx-auto mb-6 shadow-inner">
-          <Lock className="w-10 h-10" />
-        </div>
-
-        <span className="inline-block px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
-          Sistema Temporariamente Indisponível
-        </span>
-
-        <h1 className="text-2xl sm:text-3xl font-heading font-black text-white mb-3">
-          Inscrições Fora do Ar
-        </h1>
-
-        <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
-          A plataforma de inscrições da <b>Roda de Profissões 2026</b> foi suspensa temporariamente para manutenção técnica preventiva e ajustes da equipe de coordenação.
-        </p>
-
-        <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 text-xs text-slate-400 text-left space-y-2">
-          <p className="font-semibold text-slate-200 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-cyan-400" />
-            <span>Previsão de Retorno</span>
-          </p>
-          <p className="leading-relaxed">
-            Fique atento aos comunicados oficiais da coordenação do colégio nos canais de avisos e e-mails institucionais.
-          </p>
-        </div>
-      </div>
-
-      <p className="text-xs text-slate-600 mt-8 z-10">
-        Colégio Marista Glória • Roda de Profissões 2026
-      </p>
-    </main>
-  );
-}
-
-function _OriginalPlatform() {
   const [step, setStep] = useState<Step>("matricula");
   const [matricula, setMatricula] = useState("");
   const [student, setStudent] = useState<Student | null>(null);
@@ -136,9 +95,9 @@ function _OriginalPlatform() {
   }>({
     day16Open: true,
     day19Open: true,
-    isReleased: true,
-    releaseDate: "2026-09-11T17:00:00-03:00",
-    releaseTimestamp: new Date("2026-09-11T17:00:00-03:00").getTime(),
+    isReleased: false,
+    releaseDate: "2026-09-11T20:00:00-03:00",
+    releaseTimestamp: new Date("2026-09-11T20:00:00-03:00").getTime(),
     serverOffset: 0,
   });
 
@@ -169,8 +128,8 @@ function _OriginalPlatform() {
           day16Open: Boolean(d.day16Open),
           day19Open: Boolean(d.day19Open),
           isReleased: Boolean(d.isReleased),
-          releaseDate: d.releaseDate || "2026-09-11T17:00:00-03:00",
-          releaseTimestamp: d.releaseTimestamp || new Date("2026-09-11T17:00:00-03:00").getTime(),
+          releaseDate: d.releaseDate || "2026-09-11T20:00:00-03:00",
+          releaseTimestamp: d.releaseTimestamp || new Date("2026-09-11T20:00:00-03:00").getTime(),
           serverTime: d.serverTime,
           serverOffset,
         });
@@ -184,11 +143,13 @@ function _OriginalPlatform() {
     fetchSettings();
   }, []);
 
+  const hasFetchedOnEndRef = useRef(false);
+
   useEffect(() => {
     const updateCountdown = () => {
       const targetTs =
         eventSettings.releaseTimestamp ||
-        new Date("2026-09-11T17:00:00-03:00").getTime();
+        new Date("2026-09-11T20:00:00-03:00").getTime();
       const currentServerTime = Date.now() + (eventSettings.serverOffset || 0);
       const remainingMs = targetTs - currentServerTime;
 
@@ -200,7 +161,8 @@ function _OriginalPlatform() {
           seconds: "00",
           isOver: true,
         });
-        if (!eventSettings.isReleased) {
+        if (!eventSettings.isReleased && !hasFetchedOnEndRef.current) {
+          hasFetchedOnEndRef.current = true;
           fetchSettings();
         }
         return;
@@ -295,7 +257,7 @@ function _OriginalPlatform() {
       } catch (e) {
         console.error("Erro polling fila de espera:", e);
       }
-    }, 2000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [step, waitingRoomState.ticketId, student?.id]);
@@ -923,14 +885,14 @@ function _OriginalPlatform() {
                       <div>
                         <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
                           <p className="font-heading font-black text-amber-950 text-sm">
-                            Abertura: Sexta-feira (11/09) às 17h00
+                            Abertura: Sexta-feira (11/09) às 20h00
                           </p>
                           <span className="badge bg-amber-200/80 text-amber-900 font-extrabold text-[10px] px-2 py-0.5">
                             Horário Oficial do Servidor
                           </span>
                         </div>
                         <p className="text-amber-900 text-xs leading-relaxed">
-                          As inscrições para <b>ambos os dias (16/09 e 19/09)</b> serão liberadas pontualmente às <b>17h00</b>. Digite sua matrícula abaixo para validar seu acesso e consultar a programação antecipadamente.
+                          As inscrições para <b>ambos os dias (16/09 e 19/09)</b> serão liberadas pontualmente às <b>20h00</b>. Digite sua matrícula abaixo para validar seu acesso e consultar a programação antecipadamente.
                         </p>
                       </div>
                     )}
@@ -1077,10 +1039,10 @@ function _OriginalPlatform() {
                   <span>Abertura Oficial das Inscrições</span>
                 </div>
                 <h3 className="font-heading font-black text-lg sm:text-2xl text-white mb-2 leading-tight">
-                  Inscrições Liberadas Sexta-feira (11/09) às 17h00
+                  Inscrições Liberadas Sexta-feira (11/09) às 20h00
                 </h3>
                 <p className="text-neutral-300 text-xs sm:text-sm max-w-xl mx-auto mb-5 sm:mb-6 leading-relaxed">
-                  As inscrições para <b>ambos os dias (16/09 e 19/09)</b> serão abertas pontualmente às <b>17h00</b> no horário oficial do servidor.
+                  As inscrições para <b>ambos os dias (16/09 e 19/09)</b> serão abertas pontualmente às <b>20h00</b> no horário oficial do servidor.
                 </p>
 
                 {/* Bloco de Contagem Regressiva Sincronizada */}
@@ -1145,7 +1107,7 @@ function _OriginalPlatform() {
                     ) : !eventSettings.isReleased ? (
                       <span className="badge bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-[11px] px-2.5 py-1 flex items-center gap-1">
                         <Lock className="w-3 h-3 text-amber-700" />
-                        Liberação 11/09 às 17h
+                        Liberação 11/09 às 20h
                       </span>
                     ) : (
                       <span className="badge bg-neutral-200 text-neutral-700 font-extrabold text-[11px] px-2.5 py-1">
@@ -1220,7 +1182,7 @@ function _OriginalPlatform() {
                       className="w-full py-3.5 px-5 rounded-xl font-bold text-sm bg-neutral-100 text-neutral-500 border border-neutral-200 cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       <Lock className="w-4 h-4 text-neutral-400" />
-                      Liberado Sexta (11/09) às 17h00
+                      Liberado Sexta (11/09) às 20h00
                     </button>
                   ) : (
                     <button
@@ -1261,7 +1223,7 @@ function _OriginalPlatform() {
                     ) : !eventSettings.isReleased ? (
                       <span className="badge bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-[11px] px-2.5 py-1 flex items-center gap-1">
                         <Lock className="w-3 h-3 text-amber-700" />
-                        Liberação 11/09 às 17h
+                        Liberação 11/09 às 20h
                       </span>
                     ) : (
                       <span className="badge bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-[11px] px-2.5 py-1 flex items-center gap-1">
@@ -1335,12 +1297,12 @@ function _OriginalPlatform() {
                         <p className="font-bold flex items-center gap-1 mb-0.5">
                           <Lock className="w-3.5 h-3.5 text-amber-700" />
                           {!eventSettings.isReleased
-                            ? "Abertura Oficial: Sexta (11/09) às 17h00"
+                            ? "Abertura Oficial: Sexta (11/09) às 20h00"
                             : "Aguardando Liberação da Coordenação"}
                         </p>
                         <p className="text-[11px] text-amber-800 leading-relaxed">
                           {!eventSettings.isReleased
-                            ? "As inscrições para todas as atividades de sábado serão abertas juntamente com a quarta-feira pontualmente às 17h00 no horário do servidor."
+                            ? "As inscrições para todas as atividades de sábado serão abertas juntamente com a quarta-feira pontualmente às 20h00 no horário do servidor."
                             : "A abertura das inscrições para este sábado será liberada em breve pelo colégio."}
                         </p>
                       </div>
@@ -1392,7 +1354,7 @@ function _OriginalPlatform() {
                       className="w-full py-3.5 px-5 rounded-xl font-bold text-sm bg-neutral-100 text-neutral-500 border border-neutral-200 cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       <Lock className="w-4 h-4 text-neutral-400" />
-                      Liberado Sexta (11/09) às 17h00
+                      Liberado Sexta (11/09) às 20h00
                     </button>
                   ) : (
                     <button
