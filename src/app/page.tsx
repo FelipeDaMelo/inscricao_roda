@@ -852,52 +852,73 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Aviso Oficial de Abertura das Inscrições */}
+              {/* Aviso Oficial e Contagem Regressiva de Abertura das Inscrições */}
               <div
-                className={`w-full rounded-2xl p-4 mb-6 border transition-all ${
+                className={`w-full rounded-2xl p-4 sm:p-5 mb-6 border transition-all ${
                   eventSettings.isReleased
                     ? "bg-emerald-50/90 border-emerald-200 text-emerald-950"
-                    : "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 text-amber-950 shadow-xs"
+                    : "bg-gradient-to-br from-neutral-900 via-slate-900 to-marista-dark border-cyan-500/30 text-white shadow-xl"
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`p-2 rounded-xl flex-shrink-0 mt-0.5 ${
-                      eventSettings.isReleased
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-amber-100 text-amber-800"
-                    }`}
-                  >
-                    <Clock className="w-5 h-5" />
+                {eventSettings.isReleased ? (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-xl bg-emerald-100 text-emerald-700 flex-shrink-0 mt-0.5">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 text-xs leading-relaxed">
+                      <p className="font-heading font-black text-emerald-900 text-sm flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                        Inscrições Liberadas!
+                      </p>
+                      <p className="text-emerald-800 text-xs mt-0.5">
+                        As vagas para a <b>Roda de Conversas (16/09)</b> e <b>Oficinas de Sábado (19/09)</b> estão oficialmente abertas. Digite sua matrícula para prosseguir.
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 text-xs leading-relaxed">
-                    {eventSettings.isReleased ? (
-                      <div>
-                        <p className="font-heading font-black text-emerald-900 text-sm flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                          Inscrições Abertas!
-                        </p>
-                        <p className="text-emerald-800 text-xs mt-0.5">
-                          As vagas para a <b>Roda de Conversas (16/09)</b> e <b>Oficinas de Sábado (19/09)</b> estão oficialmente liberadas. Digite sua matrícula para prosseguir.
-                        </p>
+                ) : (
+                  <div className="text-center space-y-3 select-none">
+                    <div className="inline-flex items-center gap-2 bg-cyan-950/90 border border-cyan-500/40 text-cyan-300 px-3 py-1 rounded-full text-xs font-bold shadow-inner">
+                      <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Abertura Oficial às 20h00 (Horário de Brasília)</span>
+                    </div>
+
+                    <p className="text-neutral-300 text-xs leading-relaxed max-w-sm mx-auto">
+                      O acesso às inscrições será liberado automaticamente pontualmente às <b>20h00</b>.
+                    </p>
+
+                    {/* Contagem Regressiva na 1ª Página */}
+                    <div className="flex items-center justify-center gap-2 font-mono pt-1">
+                      {Number(countdown.days) > 0 && (
+                        <>
+                          <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 min-w-[50px] border border-white/15 shadow-sm">
+                            <span className="block text-lg font-black text-white">{countdown.days}</span>
+                            <span className="text-[8px] text-cyan-300 uppercase font-sans font-extrabold">Dias</span>
+                          </div>
+                          <span className="text-lg font-bold text-white/30">:</span>
+                        </>
+                      )}
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 min-w-[52px] border border-white/15 shadow-sm">
+                        <span className="block text-lg font-black text-white">{countdown.hours}</span>
+                        <span className="text-[8px] text-cyan-300 uppercase font-sans font-extrabold">Horas</span>
                       </div>
-                    ) : (
-                      <div>
-                        <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
-                          <p className="font-heading font-black text-amber-950 text-sm">
-                            Abertura: Sexta-feira (11/09) às 20h00
-                          </p>
-                          <span className="badge bg-amber-200/80 text-amber-900 font-extrabold text-[10px] px-2 py-0.5">
-                            Horário Oficial do Servidor
-                          </span>
-                        </div>
-                        <p className="text-amber-900 text-xs leading-relaxed">
-                          As inscrições para <b>ambos os dias (16/09 e 19/09)</b> serão liberadas pontualmente às <b>20h00</b>. Digite sua matrícula abaixo para validar seu acesso e consultar a programação antecipadamente.
-                        </p>
+                      <span className="text-lg font-bold text-white/30">:</span>
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 min-w-[52px] border border-white/15 shadow-lg">
+                        <span className="block text-lg font-black text-white">{countdown.minutes}</span>
+                        <span className="text-[8px] text-cyan-300 uppercase font-sans font-extrabold">Min</span>
                       </div>
-                    )}
+                      <span className="text-lg font-bold text-white/30">:</span>
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 min-w-[52px] border border-cyan-500/40 shadow-lg">
+                        <span className="block text-lg font-black text-cyan-400 animate-pulse">{countdown.seconds}</span>
+                        <span className="text-[8px] text-cyan-300 uppercase font-sans font-extrabold">Seg</span>
+                      </div>
+                    </div>
+
+                    <p className="text-[10px] text-neutral-400 flex items-center justify-center gap-1 pt-1">
+                      <Lock className="w-3 h-3 text-cyan-400" />
+                      <span>Sincronizado diretamente com o relógio do servidor</span>
+                    </p>
                   </div>
-                </div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -908,7 +929,15 @@ export default function HomePage() {
                     autoComplete="off"
                     value={matricula}
                     onChange={(e) => setMatricula(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleLookupStudent()}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        if (eventSettings.isReleased || matricula.trim() === "10720230054") {
+                          handleLookupStudent();
+                        } else {
+                          toast.error("As inscrições serão liberadas às 20h00 no horário de Brasília.");
+                        }
+                      }
+                    }}
                     placeholder="Ex: 10720..."
                     className="w-full px-4 sm:px-5 py-3.5 sm:py-4 rounded-xl bg-neutral-50 border-2 border-neutral-200
                                text-neutral-800 text-xl sm:text-2xl text-center tracking-[0.12em] sm:tracking-[0.15em] font-bold
@@ -928,18 +957,31 @@ export default function HomePage() {
 
                 <button
                   id="btn-acessar"
-                  onClick={handleLookupStudent}
-                  disabled={loading}
-                  className="w-full py-3.5 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 bg-marista-dark text-white hover:bg-marista-cyan hover:shadow-lg"
+                  onClick={() => {
+                    if (eventSettings.isReleased || matricula.trim() === "10720230054") {
+                      handleLookupStudent();
+                    }
+                  }}
+                  disabled={loading || (!eventSettings.isReleased && matricula.trim() !== "10720230054")}
+                  className={`w-full py-3.5 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 ${
+                    eventSettings.isReleased || matricula.trim() === "10720230054"
+                      ? "bg-marista-dark text-white hover:bg-marista-cyan hover:shadow-lg cursor-pointer"
+                      : "bg-neutral-200 text-neutral-400 border border-neutral-300 cursor-not-allowed"
+                  }`}
                 >
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
                       Verificando...
                     </>
+                  ) : !eventSettings.isReleased && matricula.trim() !== "10720230054" ? (
+                    <>
+                      <Lock className="w-4 h-4 text-neutral-400" />
+                      <span>Liberado às 20h00 (Aguarde a contagem)</span>
+                    </>
                   ) : (
                     <>
-                      Acessar Inscrições
+                      <span>Acessar Inscrições</span>
                       <ChevronRight className="w-5 h-5" />
                     </>
                   )}
